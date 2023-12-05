@@ -12,6 +12,19 @@ public final class CommandInput {
     private String playlistName; // pentru create playlist
     private Integer seed; // pentru shuffle
 
+    // Folosim urmatoarele campuri pentru rularile de test;
+    // analog getteri si setteri pentru acestea
+    private int age;
+    private String city;
+    private String name;
+    private int releaseYear;
+    private String description;
+    private SongInput[] songs;
+    private String date;
+    private int price;
+    private EpisodeInput[] episodes;
+    private String nextPage;
+
     public CommandInput() {
     }
 
@@ -95,19 +108,125 @@ public final class CommandInput {
         this.seed = seed;
     }
 
-    @Override
-    public String toString() {
-        return "CommandInput{"
-                + "command='" + command + '\''
-                + ", username='" + username + '\''
-                + ", timestamp=" + timestamp
-                + ", type='" + type + '\''
-                + ", filters=" + filters
-                + ", itemNumber=" + itemNumber
-                + ", repeatMode=" + repeatMode
-                + ", playlistId=" + playlistId
-                + ", playlistName='" + playlistName + '\''
-                + ", seed=" + seed
-                + '}';
+//    @Override
+//    public String toString() {
+//        return "CommandInput{"
+//                + "command='" + command + '\''
+//                + ", username='" + username + '\''
+//                + ", timestamp=" + timestamp
+//                + ", type='" + type + '\''
+//                + ", filters=" + filters
+//                + ", itemNumber=" + itemNumber
+//                + ", repeatMode=" + repeatMode
+//                + ", playlistId=" + playlistId
+//                + ", playlistName='" + playlistName + '\''
+//                + ", seed=" + seed
+//                + '}';
+//    }
+
+    public int getAge() {
+        return age;
     }
+
+    public void setAge(final int age) {
+        this.age = age;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(final String city) {
+        this.city = city;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public int getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(final int releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
+    public SongInput[] getSongs() {
+        return songs;
+    }
+
+    public void setSongs(final SongInput[] songs) {
+        this.songs = songs;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(final String date) {
+        this.date = date;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(final int price) {
+        this.price = price;
+    }
+
+    public EpisodeInput[] getEpisodes() {
+        return episodes;
+    }
+
+    public void setEpisodes(final EpisodeInput[] episodes) {
+        this.episodes = episodes;
+    }
+
+    public String getNextPage() {
+        return nextPage;
+    }
+
+    public void setNextPage(final String nextPage) {
+        this.nextPage = nextPage;
+    }
+
+//    @Override
+//    public String toString() {
+//        return "CommandInput{" +
+//                "command='" + command + '\'' +
+//                ", username='" + username + '\'' +
+//                ", timestamp=" + timestamp +
+//                ", type='" + type + '\'' +
+//                ", filters=" + filters +
+//                ", itemNumber=" + itemNumber +
+//                ", repeatMode=" + repeatMode +
+//                ", playlistId=" + playlistId +
+//                ", playlistName='" + playlistName + '\'' +
+//                ", seed=" + seed +
+//                ", age=" + age +
+//                ", city='" + city + '\'' +
+//                ", name='" + name + '\'' +
+//                ", releaseYear=" + releaseYear +
+//                ", description='" + description + '\'' +
+//                ", songs=" + Arrays.toString(songs) +
+//                ", date='" + date + '\'' +
+//                ", price=" + price +
+//                ", episodes=" + Arrays.toString(episodes) +
+//                ", nextPage='" + nextPage + '\'' +
+//                '}';
+//    }
 }
