@@ -6,12 +6,16 @@ import app.audio.Collections.PlaylistOutput;
 import app.audio.Files.AudioFile;
 import app.audio.Files.Song;
 import app.audio.LibraryEntry;
+import app.page.Homepage;
+import app.page.Page;
 import app.player.Player;
 import app.player.PlayerStats;
 import app.searchBar.Filters;
 import app.searchBar.SearchBar;
 import app.utils.Enums;
+import fileio.input.CommandInput;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,22 +23,31 @@ import java.util.List;
 /**
  * The type User.
  */
-public class User {
-    @Getter
-    private String username;
-    @Getter
-    private int age;
-    @Getter
-    private String city;
-    @Getter
-    private ArrayList<Playlist> playlists;
-    @Getter
-    private ArrayList<Song> likedSongs;
-    @Getter
-    private ArrayList<Playlist> followedPlaylists;
+public class User extends LibraryEntry {
     private final Player player;
     private final SearchBar searchBar;
+    @Getter
+    private final String username;
+    @Getter
+    private final int age;
+    @Getter
+    private final String city;
+    @Getter
+    private final ArrayList<Playlist> playlists;
+    @Getter
+    private final ArrayList<Song> likedSongs;
+    @Getter
+    private final ArrayList<Playlist> followedPlaylists;
     private boolean lastSearched;
+    @Getter
+    @Setter
+    private boolean isOnline;
+    @Getter
+    @Setter
+    private String userType;
+    @Getter
+    @Setter
+    private Page page;
 
     /**
      * Instantiates a new User.
@@ -44,6 +57,7 @@ public class User {
      * @param city     the city
      */
     public User(final String username, final int age, final String city) {
+        super(username);
         this.username = username;
         this.age = age;
         this.city = city;
@@ -53,6 +67,33 @@ public class User {
         player = new Player();
         searchBar = new SearchBar(username);
         lastSearched = false;
+        isOnline = true;
+        userType = "user";
+        page = new Homepage(likedSongs, followedPlaylists);
+    }
+
+    /**
+     * Instantiates a new User.
+     *
+     * @param username the username
+     * @param age      the age
+     * @param city     the city
+     * @param type     the type
+     */
+    public User(final String username, final int age, final String city, final String type) {
+        super(username);
+        this.username = username;
+        this.age = age;
+        this.city = city;
+        playlists = new ArrayList<>();
+        likedSongs = new ArrayList<>();
+        followedPlaylists = new ArrayList<>();
+        player = new Player();
+        searchBar = new SearchBar(username);
+        lastSearched = false;
+        isOnline = true;
+        userType = type;
+        page = new Homepage(this.likedSongs, this.followedPlaylists);
     }
 
     /**
@@ -95,6 +136,8 @@ public class User {
             return "The selected ID is too high.";
         }
 
+        // TODO
+
         return "Successfully selected %s.".formatted(selected.getName());
     }
 
@@ -109,7 +152,7 @@ public class User {
         }
 
         if (!searchBar.getLastSearchType().equals("song")
-            && ((AudioCollection) searchBar.getLastSelected()).getNumberOfTracks() == 0) {
+                && ((AudioCollection) searchBar.getLastSelected()).getNumberOfTracks() == 0) {
             return "You can't load an empty audio collection!";
         }
 
@@ -188,8 +231,8 @@ public class User {
             return "Please load a source before using the shuffle function.";
         }
 
-        if (!player.getType().equals("playlist")) {
-            return "The loaded source is not a playlist.";
+        if (!player.getType().equals("playlist") && !player.getType().equals("album")) {
+            return "The loaded source is not a playlist or an album.";
         }
 
         player.shuffle(seed);
@@ -478,6 +521,30 @@ public class User {
      * @param time the time
      */
     public void simulateTime(final int time) {
-        player.simulatePlayer(time);
+        if (this.isOnline()) {
+            player.simulatePlayer(time);
+        }
     }
+
+    /**
+     * Switch connection status string.
+     *
+     * @param commandInput the command input
+     * @return the string
+     */
+    public String switchConnectionStatus(final CommandInput commandInput) {
+        setOnline(!isOnline());
+        return username + " has changed status successfully.";
+    }
+
+    /**
+     * Album string.
+     *
+     * @param commandInput the command input
+     * @return the string
+     */
+    public String addAlbum(final CommandInput commandInput) {
+        return commandInput.getUsername() + " is not an artist.";
+    }
+
 }

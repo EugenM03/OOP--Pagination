@@ -30,6 +30,7 @@ public final class Main {
     /**
      * DO NOT MODIFY MAIN METHOD
      * Call the checker
+     *
      * @param args from command line
      * @throws IOException in case of exceptions to reading / writing
      */
@@ -71,11 +72,11 @@ public final class Main {
                               final String filePath2) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         LibraryInput library = objectMapper.readValue(new File(CheckerConstants.TESTS_PATH
-                                                               + "library/library.json"),
-                                                               LibraryInput.class);
+                        + "library/library.json"),
+                LibraryInput.class);
         CommandInput[] commands = objectMapper.readValue(new File(CheckerConstants.TESTS_PATH
-                                                                  + filePath1),
-                                                                  CommandInput[].class);
+                        + filePath1),
+                CommandInput[].class);
         ArrayNode outputs = objectMapper.createArrayNode();
 
         Admin.setUsers(library.getUsers());
@@ -110,6 +111,17 @@ public final class Main {
                 case "getPreferredGenre" -> outputs.add(CommandRunner.getPreferredGenre(command));
                 case "getTop5Songs" -> outputs.add(CommandRunner.getTop5Songs(command));
                 case "getTop5Playlists" -> outputs.add(CommandRunner.getTop5Playlists(command));
+
+                // Starting from the source code, here begins the implementation of the
+                // required commands for the second stage of the project.
+                case "switchConnectionStatus" ->
+                        outputs.add(CommandRunner.switchConnectionStatus(command));
+                case "getOnlineUsers" -> outputs.add(CommandRunner.getOnlineUsers(command));
+                case "addUser" -> outputs.add(CommandRunner.addUser(command));
+                case "addAlbum" -> outputs.add(CommandRunner.addAlbum(command));
+                case "showAlbums" -> outputs.add(CommandRunner.showAlbums(command));
+                case "printCurrentPage" -> outputs.add(CommandRunner.printCurrentPage(command));
+
                 default -> System.out.println("Invalid command " + commandName);
             }
         }

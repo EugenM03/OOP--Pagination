@@ -13,15 +13,14 @@ import java.util.List;
  * The type Player.
  */
 public final class Player {
+    private final int skipTime = 90;
+    private final ArrayList<PodcastBookmark> bookmarks = new ArrayList<>();
     private Enums.RepeatMode repeatMode;
     private boolean shuffle;
     private boolean paused;
     private PlayerSource source;
     @Getter
     private String type;
-    private final int skipTime = 90;
-
-    private ArrayList<PodcastBookmark> bookmarks = new ArrayList<>();
 
 
     /**
@@ -30,6 +29,40 @@ public final class Player {
     public Player() {
         this.repeatMode = Enums.RepeatMode.NO_REPEAT;
         this.paused = true;
+    }
+
+    /**
+     * Create source player source.
+     *
+     * @param type      the type
+     * @param entry     the entry
+     * @param bookmarks the bookmarks
+     * @return the player source
+     */
+    public static PlayerSource createSource(final String type,
+                                            final LibraryEntry entry,
+                                            final List<PodcastBookmark> bookmarks) {
+        if ("song".equals(type)) {
+            return new PlayerSource(Enums.PlayerSourceType.LIBRARY, (AudioFile) entry);
+        } else if ("playlist".equals(type)) {
+            return new PlayerSource(Enums.PlayerSourceType.PLAYLIST, (AudioCollection) entry);
+        } else if ("podcast".equals(type)) {
+            return createPodcastSource((AudioCollection) entry, bookmarks);
+        } else if ("album".equals(type)) {
+            return new PlayerSource(Enums.PlayerSourceType.ALBUM, (AudioCollection) entry);
+        }
+
+        return null;
+    }
+
+    private static PlayerSource createPodcastSource(final AudioCollection collection,
+                                                    final List<PodcastBookmark> bookmarks) {
+        for (PodcastBookmark bookmark : bookmarks) {
+            if (bookmark.getName().equals(collection.getName())) {
+                return new PlayerSource(Enums.PlayerSourceType.PODCAST, collection, bookmark);
+            }
+        }
+        return new PlayerSource(Enums.PlayerSourceType.PODCAST, collection);
     }
 
     /**
@@ -50,50 +83,18 @@ public final class Player {
         if (source != null && source.getAudioFile() != null) {
             PodcastBookmark currentBookmark =
                     new PodcastBookmark(source.getAudioCollection().getName(),
-                                        source.getIndex(),
-                                        source.getDuration());
+                            source.getIndex(),
+                            source.getDuration());
             bookmarks.removeIf(bookmark -> bookmark.getName().equals(currentBookmark.getName()));
             bookmarks.add(currentBookmark);
         }
     }
 
     /**
-     * Create source player source.
-     *
-     * @param type      the type
-     * @param entry     the entry
-     * @param bookmarks the bookmarks
-     * @return the player source
-     */
-    public static PlayerSource createSource(final String type,
-                                            final LibraryEntry entry,
-                                            final List<PodcastBookmark> bookmarks) {
-        if ("song".equals(type)) {
-            return new PlayerSource(Enums.PlayerSourceType.LIBRARY, (AudioFile) entry);
-        } else if ("playlist".equals(type)) {
-            return new PlayerSource(Enums.PlayerSourceType.PLAYLIST, (AudioCollection) entry);
-        } else if ("podcast".equals(type)) {
-            return createPodcastSource((AudioCollection) entry, bookmarks);
-        }
-
-        return null;
-    }
-
-    private static PlayerSource createPodcastSource(final AudioCollection collection,
-                                                    final List<PodcastBookmark> bookmarks) {
-        for (PodcastBookmark bookmark : bookmarks) {
-            if (bookmark.getName().equals(collection.getName())) {
-                return new PlayerSource(Enums.PlayerSourceType.PODCAST, collection, bookmark);
-            }
-        }
-        return new PlayerSource(Enums.PlayerSourceType.PODCAST, collection);
-    }
-
-    /**
      * Sets source.
      *
-     * @param entry the entry
-     * @param sourceType  the sourceType
+     * @param entry      the entry
+     * @param sourceType the sourceType
      */
     public void setSource(final LibraryEntry entry, final String sourceType) {
         if ("podcast".equals(this.type)) {
@@ -124,7 +125,8 @@ public final class Player {
             source.generateShuffleOrder(seed);
         }
 
-        if (source.getType() == Enums.PlayerSourceType.PLAYLIST) {
+        if (source.getType() == Enums.PlayerSourceType.PLAYLIST
+                || source.getType() == Enums.PlayerSourceType.ALBUM) {
             shuffle = !shuffle;
             if (shuffle) {
                 source.updateShuffleIndex();

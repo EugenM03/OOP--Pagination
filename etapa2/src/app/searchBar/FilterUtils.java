@@ -116,6 +116,18 @@ public final class FilterUtils {
     }
 
     /**
+     * Filter by description list.
+     *
+     * @param entries     the entries
+     * @param description the description
+     * @return the list
+     */
+    public static List<LibraryEntry> filterByDescription(final List<LibraryEntry> entries,
+                                                         final String description) {
+        return filter(entries, entry -> entry.matchesDescription(description));
+    }
+
+    /**
      * Filter by playlist visibility list.
      *
      * @param entries the entries

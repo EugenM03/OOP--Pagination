@@ -1,28 +1,30 @@
 package fileio.input;
 
+import java.util.ArrayList;
+
 public final class CommandInput {
     private String command;
     private String username;
     private Integer timestamp;
     private String type; // song / playlist / podcast
-    private FiltersInput filters; // pentru search
-    private Integer itemNumber; // pentru select
-    private Integer repeatMode; // pentru repeat
-    private Integer playlistId; // pentru add/remove song
-    private String playlistName; // pentru create playlist
-    private Integer seed; // pentru shuffle
+    private FiltersInput filters; // for search
+    private Integer itemNumber; // for select
+    private Integer repeatMode; // for repeat
+    private Integer playlistId; // for add/remove song
+    private String playlistName; // for create playlist
+    private Integer seed; // for shuffle
 
-    // Folosim urmatoarele campuri pentru rularile de test;
-    // analog getteri si setteri pentru acestea
+    // We use the following fields for testing;
+    // completed with respective getters and setters
     private int age;
     private String city;
     private String name;
     private int releaseYear;
     private String description;
-    private SongInput[] songs;
+    private ArrayList<SongInput> songs;
     private String date;
     private int price;
-    private EpisodeInput[] episodes;
+    private ArrayList<EpisodeInput> episodes;
     private String nextPage;
 
     public CommandInput() {
@@ -108,7 +110,7 @@ public final class CommandInput {
         this.seed = seed;
     }
 
-//    @Override
+//    @Override                                                                                     // TODO
 //    public String toString() {
 //        return "CommandInput{"
 //                + "command='" + command + '\''
@@ -164,11 +166,11 @@ public final class CommandInput {
         this.description = description;
     }
 
-    public SongInput[] getSongs() {
+    public ArrayList<SongInput> getSongs() {
         return songs;
     }
 
-    public void setSongs(final SongInput[] songs) {
+    public void setSongs(final ArrayList<SongInput> songs) {
         this.songs = songs;
     }
 
@@ -188,11 +190,11 @@ public final class CommandInput {
         this.price = price;
     }
 
-    public EpisodeInput[] getEpisodes() {
+    public ArrayList<EpisodeInput> getEpisodes() {
         return episodes;
     }
 
-    public void setEpisodes(final EpisodeInput[] episodes) {
+    public void setEpisodes(final ArrayList<EpisodeInput> episodes) {
         this.episodes = episodes;
     }
 

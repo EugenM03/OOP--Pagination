@@ -14,8 +14,9 @@ import java.util.Random;
  * The type Player source.
  */
 public class PlayerSource {
+    private final List<Integer> indices = new ArrayList<>();
     @Getter
-    private Enums.PlayerSourceType type;
+    private final Enums.PlayerSourceType type;
     @Getter
     private AudioCollection audioCollection;
     @Getter
@@ -24,7 +25,6 @@ public class PlayerSource {
     private int index;
     private int indexShuffled;
     private int remainedDuration;
-    private final List<Integer> indices = new ArrayList<>();
 
     /**
      * Instantiates a new Player source.
@@ -99,8 +99,8 @@ public class PlayerSource {
             }
         } else {
             if (repeatMode == Enums.RepeatMode.REPEAT_ONCE
-                || repeatMode == Enums.RepeatMode.REPEAT_CURRENT_SONG
-                || repeatMode == Enums.RepeatMode.REPEAT_INFINITE) {
+                    || repeatMode == Enums.RepeatMode.REPEAT_CURRENT_SONG
+                    || repeatMode == Enums.RepeatMode.REPEAT_INFINITE) {
                 remainedDuration = audioFile.getDuration();
             } else if (repeatMode == Enums.RepeatMode.NO_REPEAT) {
                 if (shuffle) {

@@ -15,7 +15,7 @@ public final class Playlist extends AudioCollection {
     private final ArrayList<Song> songs;
     private Enums.Visibility visibility;
     private Integer followers;
-    private int timestamp;
+    private final int timestamp;
 
     /**
      * Instantiates a new Playlist.
@@ -40,6 +40,16 @@ public final class Playlist extends AudioCollection {
         this.visibility = Enums.Visibility.PUBLIC;
         this.followers = 0;
         this.timestamp = timestamp;
+    }
+
+    private static boolean filterByFollowersCount(final int count, final String query) {
+        if (query.startsWith("<")) {
+            return count < Integer.parseInt(query.substring(1));
+        } else if (query.startsWith(">")) {
+            return count > Integer.parseInt(query.substring(1));
+        } else {
+            return count == Integer.parseInt(query);
+        }
     }
 
     /**
@@ -117,22 +127,12 @@ public final class Playlist extends AudioCollection {
     @Override
     public boolean isVisibleToUser(final String user) {
         return this.getVisibility() == Enums.Visibility.PUBLIC
-               || (this.getVisibility() == Enums.Visibility.PRIVATE
-                   && this.getOwner().equals(user));
+                || (this.getVisibility() == Enums.Visibility.PRIVATE
+                && this.getOwner().equals(user));
     }
 
     @Override
     public boolean matchesFollowers(final String followerNum) {
         return filterByFollowersCount(this.getFollowers(), followerNum);
-    }
-
-    private static boolean filterByFollowersCount(final int count, final String query) {
-        if (query.startsWith("<")) {
-            return count < Integer.parseInt(query.substring(1));
-        } else if (query.startsWith(">")) {
-            return count > Integer.parseInt(query.substring(1));
-        } else {
-            return count == Integer.parseInt(query);
-        }
     }
 }

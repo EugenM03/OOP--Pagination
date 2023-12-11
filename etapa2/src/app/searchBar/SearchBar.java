@@ -1,6 +1,5 @@
 package app.searchBar;
 
-
 import app.Admin;
 import app.audio.LibraryEntry;
 import lombok.Getter;
@@ -18,14 +17,15 @@ import static app.searchBar.FilterUtils.filterByOwner;
 import static app.searchBar.FilterUtils.filterByPlaylistVisibility;
 import static app.searchBar.FilterUtils.filterByReleaseYear;
 import static app.searchBar.FilterUtils.filterByTags;
+import static app.searchBar.FilterUtils.filterByDescription;
 
 /**
  * The type Search bar.
  */
 public final class SearchBar {
-    private List<LibraryEntry> results;
-    private final String user;
     private static final Integer MAX_RESULTS = 5;
+    private final String user;
+    private List<LibraryEntry> results;
     @Getter
     private String lastSearchType;
 
@@ -123,6 +123,34 @@ public final class SearchBar {
                 }
 
                 break;
+            case "album":
+                entries = new ArrayList<>(Admin.getAlbums());
+
+                if (filters.getName() != null) {
+                    entries = filterByName(entries, filters.getName());
+                }
+
+                if (filters.getOwner() != null) {
+                    entries = filterByOwner(entries, filters.getOwner());
+                }
+
+                if (filters.getDescription() != null) {
+                    entries = filterByDescription(entries, filters.getDescription());
+                }
+
+                break;
+            case "artist", "host":
+                entries = new ArrayList<>(Admin.getUsers());
+
+                if (filters.getName() != null) {
+                    entries = filterByName(entries, filters.getName());
+                }
+
+                if (filters.getFollowers() != null) {
+                    entries = filterByFollowers(entries, filters.getFollowers());
+                }
+
+                break;
             default:
                 entries = new ArrayList<>();
         }
@@ -148,7 +176,7 @@ public final class SearchBar {
 
             return null;
         } else {
-            lastSelected =  this.results.get(itemNumber - 1);
+            lastSelected = this.results.get(itemNumber - 1);
             results.clear();
 
             return lastSelected;

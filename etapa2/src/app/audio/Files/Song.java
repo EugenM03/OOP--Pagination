@@ -43,6 +43,16 @@ public final class Song extends AudioFile {
         this.likes = 0;
     }
 
+    private static boolean filterByYear(final int year, final String query) {
+        if (query.startsWith("<")) {
+            return year < Integer.parseInt(query.substring(1));
+        } else if (query.startsWith(">")) {
+            return year > Integer.parseInt(query.substring(1));
+        } else {
+            return year == Integer.parseInt(query);
+        }
+    }
+
     @Override
     public boolean matchesAlbum(final String albumName) {
         return this.getAlbum().equalsIgnoreCase(albumName);
@@ -62,6 +72,7 @@ public final class Song extends AudioFile {
         }
         return true;
     }
+
     @Override
     public boolean matchesLyrics(final String lyricFilter) {
         return this.getLyrics().toLowerCase().contains(lyricFilter.toLowerCase());
@@ -80,16 +91,6 @@ public final class Song extends AudioFile {
     @Override
     public boolean matchesReleaseYear(final String releaseYearFilter) {
         return filterByYear(this.getReleaseYear(), releaseYearFilter);
-    }
-
-    private static boolean filterByYear(final int year, final String query) {
-        if (query.startsWith("<")) {
-            return year < Integer.parseInt(query.substring(1));
-        } else if (query.startsWith(">")) {
-            return year > Integer.parseInt(query.substring(1));
-        } else {
-            return year == Integer.parseInt(query);
-        }
     }
 
     /**

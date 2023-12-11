@@ -8,10 +8,11 @@ public final class FiltersInput {
     private ArrayList<String> tags;
     private String lyrics;
     private String genre;
-    private String releaseYear; // pentru search song/episode -> releaseYear
+    private String releaseYear; // for search song/episode -> releaseYear
     private String artist;
-    private String owner; // pentru search playlist si podcast
-    private String followers; // pentru search playlist -> followers
+    private String owner; // for search playlist si podcast
+    private String followers; // for search playlist -> followers
+    private String description; // for search album -> description
 
     public FiltersInput() {
     }
@@ -86,6 +87,14 @@ public final class FiltersInput {
 
     public void setFollowers(final String followers) {
         this.followers = followers;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
     }
 
     @Override

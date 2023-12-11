@@ -1,10 +1,13 @@
 package app;
 
+import app.audio.Collections.Album;
 import app.audio.Collections.Playlist;
 import app.audio.Collections.Podcast;
 import app.audio.Files.Episode;
 import app.audio.Files.Song;
+import app.user.Artist;
 import app.user.User;
+import fileio.input.CommandInput;
 import fileio.input.EpisodeInput;
 import fileio.input.PodcastInput;
 import fileio.input.SongInput;
@@ -13,30 +16,29 @@ import fileio.input.UserInput;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The type Admin.
  */
 public final class Admin {
+    private static final int LIMIT = 5;
     private static List<User> users = new ArrayList<>();
     private static List<Song> songs = new ArrayList<>();
     private static List<Podcast> podcasts = new ArrayList<>();
     private static int timestamp = 0;
-    private static final int LIMIT = 5;
 
     private Admin() {
     }
 
     /**
-     * Sets users.
+     * Gets songs.
      *
-     * @param userInputList the user input list
+     * @return the songs
      */
-    public static void setUsers(final List<UserInput> userInputList) {
-        users = new ArrayList<>();
-        for (UserInput userInput : userInputList) {
-            users.add(new User(userInput.getUsername(), userInput.getAge(), userInput.getCity()));
-        }
+    public static List<Song> getSongs() {
+        return new ArrayList<>(songs);
     }
 
     /**
@@ -53,6 +55,14 @@ public final class Admin {
         }
     }
 
+    /**
+     * Gets podcasts.
+     *
+     * @return the podcasts
+     */
+    public static List<Podcast> getPodcasts() {
+        return new ArrayList<>(podcasts);
+    }
 
     /**
      * Sets podcasts.
@@ -65,29 +75,11 @@ public final class Admin {
             List<Episode> episodes = new ArrayList<>();
             for (EpisodeInput episodeInput : podcastInput.getEpisodes()) {
                 episodes.add(new Episode(episodeInput.getName(),
-                                         episodeInput.getDuration(),
-                                         episodeInput.getDescription()));
+                        episodeInput.getDuration(),
+                        episodeInput.getDescription()));
             }
             podcasts.add(new Podcast(podcastInput.getName(), podcastInput.getOwner(), episodes));
         }
-    }
-
-    /**
-     * Gets songs.
-     *
-     * @return the songs
-     */
-    public static List<Song> getSongs() {
-        return new ArrayList<>(songs);
-    }
-
-    /**
-     * Gets podcasts.
-     *
-     * @return the podcasts
-     */
-    public static List<Podcast> getPodcasts() {
-        return new ArrayList<>(podcasts);
     }
 
     /**
@@ -104,6 +96,23 @@ public final class Admin {
     }
 
     /**
+     * Gets albums.
+     *
+     * @return the albums
+     */
+    public static List<Album> getAlbums() {
+        List<Album> albums = new ArrayList<>();
+
+        for (User user : Admin.users) {
+            if ("artist".equals(user.getUserType())) {
+                albums.addAll(((Artist) user).getAlbums());
+            }
+        }
+
+        return albums;
+    }
+
+    /**
      * Gets user.
      *
      * @param username the username
@@ -116,6 +125,22 @@ public final class Admin {
             }
         }
         return null;
+    }
+
+    public static List<User> getUsers() {
+        return new ArrayList<>(users);                                                                   // ??????
+    }
+
+    /**
+     * Sets users.
+     *
+     * @param userInputList the user input list
+     */
+    public static void setUsers(final List<UserInput> userInputList) {
+        users = new ArrayList<>();
+        for (UserInput userInput : userInputList) {
+            users.add(new User(userInput.getUsername(), userInput.getAge(), userInput.getCity()));
+        }
     }
 
     /**
@@ -156,6 +181,24 @@ public final class Admin {
     }
 
     /**
+     * Adds songs to the list.
+     *
+     * @param source the list of songs to be added
+     */
+    public static void addSongs(final List<Song> source) {
+        Set<String> existingSongNames = songs.stream()
+                .map(Song::getName)
+                .collect(Collectors.toSet());
+
+        source.stream()
+                .filter(song -> !existingSongNames.contains(song.getName()))
+                .forEach(song -> {
+                    songs.add(song);
+                    existingSongNames.add(song.getName());
+                });
+    }
+
+    /**
      * Gets top 5 playlists.
      *
      * @return the top 5 playlists
@@ -175,6 +218,54 @@ public final class Admin {
             count++;
         }
         return topPlaylists;
+    }
+
+    /**
+     * Gets online users.
+     *
+     * @return the online users
+     */
+    public static List<String> getOnlineUsers() {
+        List<String> onlineUsers = new ArrayList<>();
+        for (User user : users) {
+            if (user.isOnline()) {
+                onlineUsers.add(user.getUsername());
+            }
+        }
+
+        return onlineUsers;
+    }
+
+    /**
+     * Adds a user.
+     *
+     * @param commandInput the command input
+     * @return the new user
+     */
+    public static String addUser(final CommandInput commandInput) {
+        String currUserType = commandInput.getType();
+        User newUser;
+
+        // Creates the specific user based on the type (artist, user, host)
+        if ("host".equals(currUserType)) {
+            newUser = new User(commandInput.getUsername(),
+                    commandInput.getAge(), commandInput.getCity());
+        } else if ("artist".equals(currUserType)) {
+            newUser = new Artist(commandInput.getUsername(), commandInput.getAge(),
+                    commandInput.getCity(), commandInput.getType());
+        } else {
+            newUser = new User(commandInput.getUsername(),
+                    commandInput.getAge(), commandInput.getCity());
+        }
+
+        // We add the user to the list only if it isn't already taken
+        if (Admin.getUser(newUser.getUsername()) != null) {
+            return "The username " + newUser.getUsername() + " is already taken.";
+        }
+
+        // Adding user to the list
+        users.add(newUser);
+        return "The username " + newUser.getUsername() + " has been added successfully.";
     }
 
     /**
