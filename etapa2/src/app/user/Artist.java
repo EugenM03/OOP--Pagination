@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static app.utils.DataValidation.*;
+
 public class Artist extends User {
     @Getter
     private final ArrayList<Album> albums = new ArrayList<>();
@@ -20,6 +22,8 @@ public class Artist extends User {
     private final ArrayList<Event> events = new ArrayList<>();
     @Getter
     private final ArrayList<Merch> merchandise = new ArrayList<>();
+
+    // Used for data validation
 
 
     /**
@@ -36,7 +40,7 @@ public class Artist extends User {
     }
 
     // TODO (ChatGpt helped)
-    private static boolean isValidDate(String date) {
+    private static boolean isValidDate(final String date) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         sdf.setLenient(false); // Input must match the exact format
 
@@ -45,15 +49,16 @@ public class Artist extends User {
         int month = Integer.parseInt(date.substring(3, 5));
         int year = Integer.parseInt(date.substring(6, 10));
 
-        if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2023) {
+        if (day < DAY_MIN || day > DAY_MAX || month < MONTH_MIN || month > MONTH_MAX
+                || year < YEAR_MIN || year > YEAR_MAX) {
             return false;
         }
 
         // Verify the day depending on the month
-        if (month == 4 || month == 6 || month == 9 || month == 11) {
-            return day <= 30;
+        if (month == APRIL || month == JUNE || month == SEPTEMBER || month == NOVEMBER) {
+            return day <= DAY_MAX_THIRTY_CASE;
         } else if (month == 2) {
-            return day <= 28;
+            return day <= DAY_MAX_FEBRUARY;
         } else {
             return true;
         }
@@ -135,7 +140,7 @@ public class Artist extends User {
      * @return the string
      */
     @Override
-    public String addMerch(CommandInput commandInput) {
+    public String addMerch(final CommandInput commandInput) {
         Merch newMerch = new Merch(commandInput.getName(),
                 commandInput.getDescription(), commandInput.getPrice());
 
@@ -161,7 +166,7 @@ public class Artist extends User {
      * @return the string
      */
     @Override
-    public String addEvent(CommandInput commandInput) {
+    public String addEvent(final CommandInput commandInput) {
         Event newEvent = new Event(commandInput.getName(),
                 commandInput.getDescription(), commandInput.getDate());
 

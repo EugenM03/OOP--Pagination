@@ -10,16 +10,17 @@ import java.util.Iterator;
 public final class HomePage extends Page {
     // A particular page that displays the user's liked songs and followed playlists.
     @Getter
-    private ArrayList<Song> recommendedSongs;
+    private final ArrayList<Song> recommendedSongs;
     @Getter
-    private ArrayList<Playlist> recommendedPlaylists;
+    private final ArrayList<Playlist> recommendedPlaylists;
 
     public HomePage() {
         recommendedSongs = new ArrayList<>();
         recommendedPlaylists = new ArrayList<>();
     }
 
-    public HomePage(final ArrayList<Song> recommendedSongs, final ArrayList<Playlist> followedPlaylists) {
+    public HomePage(final ArrayList<Song> recommendedSongs,
+                    final ArrayList<Playlist> followedPlaylists) {
         this.recommendedSongs = recommendedSongs;
         this.recommendedPlaylists = followedPlaylists;
     }

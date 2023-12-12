@@ -4,7 +4,6 @@ import app.audio.Collections.Album;
 import app.user.Artist;
 import app.user.Event;
 import app.user.Merch;
-import app.user.User;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -25,7 +24,8 @@ public final class ArtistPage extends Page {
         events = new ArrayList<>();
     }
 
-    public ArtistPage(Artist pageOwner, ArrayList<Album> albums, ArrayList<Merch> merchandise, ArrayList<Event> events) {
+    public ArtistPage(final Artist pageOwner, final ArrayList<Album> albums,
+                      final ArrayList<Merch> merchandise, final ArrayList<Event> events) {
         this.pageOwner = pageOwner;
         this.albums = albums;
         this.merchandise = merchandise;
@@ -48,7 +48,9 @@ public final class ArtistPage extends Page {
 
         StringBuilder merchString = new StringBuilder("Merch:\n\t[");
         for (int i = 0; i < merchandise.size(); i++) {
-            merchString.append(merchandise.get(i).getName()).append(" - ").append(merchandise.get(i).getPrice()).append(":\n\t").append(merchandise.get(i).getDescription());
+            merchString.append(merchandise.get(i).getName()).append(" - ")
+                    .append(merchandise.get(i).getPrice())
+                    .append(":\n\t").append(merchandise.get(i).getDescription());
             if (i < merchandise.size() - 1) {
                 merchString.append(", ");
             }
@@ -58,7 +60,9 @@ public final class ArtistPage extends Page {
 
         StringBuilder eventsString = new StringBuilder("Events:\n\t[");
         for (int i = 0; i < events.size(); i++) {
-            eventsString.append(events.get(i).getName()).append(" - ").append(events.get(i).getDate()).append(":\n\t").append(events.get(i).getDescription());
+            eventsString.append(events.get(i).getName()).append(" - ")
+                    .append(events.get(i).getDate())
+                    .append(":\n\t").append(events.get(i).getDescription());
             if (i < events.size() - 1) {
                 eventsString.append(", ");
             }

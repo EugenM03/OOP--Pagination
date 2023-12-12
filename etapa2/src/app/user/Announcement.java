@@ -8,7 +8,7 @@ public final class Announcement {
     @Getter
     private final String description;
 
-    public Announcement(String name, String description) {
+    public Announcement(final String name, final String description) {
         this.name = name;
         this.description = description;
     }

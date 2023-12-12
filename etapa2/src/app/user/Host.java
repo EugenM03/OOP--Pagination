@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 
 public final class Host extends User {
     @Getter
-    ArrayList<Podcast> podcasts = new ArrayList<>();
+    private ArrayList<Podcast> podcasts = new ArrayList<>();
     @Getter
-    ArrayList<Announcement> announcements = new ArrayList<>();
+    private ArrayList<Announcement> announcements = new ArrayList<>();
 
-    public Host(String username, int age, String city, String userType) {
+    public Host(final String username, final int age, final String city, final String userType) {
         super(username, age, city, userType);
 //        super.setPage(new HostPage(this.podcasts, this.announcements, this)); TODO
     }
@@ -33,7 +33,7 @@ public final class Host extends User {
     }
 
     @Override
-    public String addPodcast(CommandInput commandInput) {
+    public String addPodcast(final CommandInput commandInput) {
         // Convert to episode inputs Episodes objects
         ArrayList<Episode> episodes = new ArrayList<>();
         commandInput.getEpisodes().forEach(episodeInput ->
@@ -59,7 +59,8 @@ public final class Host extends User {
                 .collect(Collectors.toSet());
 
         if (episodeNames.size() < newPodcast.getEpisodes().size()) {
-            return commandInput.getUsername() + " has the same episode at least twice in this podcast.";
+            return commandInput.getUsername()
+                    + " has the same episode at least twice in this podcast.";
         }
 
         // If the podcast is valid, add it to the list of podcasts (no duplicates allowed)

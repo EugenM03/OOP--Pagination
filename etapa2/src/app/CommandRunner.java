@@ -646,15 +646,15 @@ public final class CommandRunner {
         Artist artist = (Artist) Admin.getUser(commandInput.getUsername());
         List<AlbumOutput> albumOutputs = artist != null
                 ? artist.getAlbums().stream()
-                        .map(album -> {
-                            AlbumOutput albumOutput = new AlbumOutput();
-                            albumOutput.setName(album.getName());
-                            albumOutput.setSongs(album.getSongs().stream()
-                                    .map(Song::getName)
-                                    .collect(Collectors.toList()));
-                            return albumOutput;
-                        })
-                        .collect(Collectors.toList())
+                .map(album -> {
+                    AlbumOutput albumOutput = new AlbumOutput();
+                    albumOutput.setName(album.getName());
+                    albumOutput.setSongs(album.getSongs().stream()
+                            .map(Song::getName)
+                            .collect(Collectors.toList()));
+                    return albumOutput;
+                })
+                .collect(Collectors.toList())
                 : null;
 
         ObjectNode objectNode = objectMapper.createObjectNode();
@@ -683,6 +683,116 @@ public final class CommandRunner {
             } else {
                 message = commandInput.getUsername() + " is offline.";
             }
+        }
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Add merch object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode addMerch(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.addMerch(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Add event object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode addEvent(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.addEvent(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Gets all users.
+     *
+     * @param commandInput the command input
+     * @return the users
+     */
+    public static ObjectNode getAllUsers(final CommandInput commandInput) {
+        List<String> users = Admin.getAllUsers();
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("result", objectMapper.valueToTree(users));
+
+        return objectNode;
+    }
+
+    /**
+     * Delete user object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode deleteUser(final CommandInput commandInput) {
+        String message = Admin.deleteUser(commandInput);
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Add podcast object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode addPodcast(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.addPodcast(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
         }
 
         ObjectNode objectNode = objectMapper.createObjectNode();
