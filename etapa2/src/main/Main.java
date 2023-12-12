@@ -114,6 +114,7 @@ public final class Main {
 
                 // Starting from the source code, here begins the implementation of the
                 // required commands for the second stage of the project.
+                // TODO order by enunt
                 case "switchConnectionStatus" ->
                         outputs.add(CommandRunner.switchConnectionStatus(command));
                 case "getOnlineUsers" -> outputs.add(CommandRunner.getOnlineUsers(command));
@@ -121,6 +122,13 @@ public final class Main {
                 case "addAlbum" -> outputs.add(CommandRunner.addAlbum(command));
                 case "showAlbums" -> outputs.add(CommandRunner.showAlbums(command));
                 case "printCurrentPage" -> outputs.add(CommandRunner.printCurrentPage(command));
+                case "addMerch" -> outputs.add(CommandRunner.addMerch(command));
+                case "addEvent" -> outputs.add(CommandRunner.addEvent(command));
+
+                case "getAllUsers" -> outputs.add(CommandRunner.getAllUsers(command));
+                case "deleteUser" -> outputs.add(CommandRunner.deleteUser(command));    // TODO
+
+                case "addPodcast" -> outputs.add(CommandRunner.addPodcast(command));
 
                 default -> System.out.println("Invalid command " + commandName);
             }

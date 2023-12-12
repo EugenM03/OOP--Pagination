@@ -6,7 +6,7 @@ import app.audio.Collections.PlaylistOutput;
 import app.audio.Files.AudioFile;
 import app.audio.Files.Song;
 import app.audio.LibraryEntry;
-import app.page.Homepage;
+import app.page.HomePage;
 import app.page.Page;
 import app.player.Player;
 import app.player.PlayerStats;
@@ -24,6 +24,7 @@ import java.util.List;
  * The type User.
  */
 public class User extends LibraryEntry {
+    @Getter
     private final Player player;
     private final SearchBar searchBar;
     @Getter
@@ -69,7 +70,7 @@ public class User extends LibraryEntry {
         lastSearched = false;
         isOnline = true;
         userType = "user";
-        page = new Homepage(likedSongs, followedPlaylists);
+        page = new HomePage(likedSongs, followedPlaylists);
     }
 
     /**
@@ -91,9 +92,9 @@ public class User extends LibraryEntry {
         player = new Player();
         searchBar = new SearchBar(username);
         lastSearched = false;
-        isOnline = true;
+        isOnline = false;
         userType = type;
-        page = new Homepage(this.likedSongs, this.followedPlaylists);
+        page = new HomePage(this.likedSongs, this.followedPlaylists);
     }
 
     /**
@@ -136,7 +137,10 @@ public class User extends LibraryEntry {
             return "The selected ID is too high.";
         }
 
+        // Depending on the type of the selected item (song, album, page etc.),
+        // the output message will be different
         // TODO
+
 
         return "Successfully selected %s.".formatted(selected.getName());
     }
@@ -545,6 +549,30 @@ public class User extends LibraryEntry {
      */
     public String addAlbum(final CommandInput commandInput) {
         return commandInput.getUsername() + " is not an artist.";
+    }
+
+    /**
+     * Add merch string.
+     *
+     * @param commandInput the command input
+     * @return the string
+     */
+    public String addMerch(final CommandInput commandInput) {
+        return commandInput.getUsername() + " is not an artist.";
+    }
+
+    /**
+     * Add event string.
+     *
+     * @param commandInput the command input
+     * @return the string
+     */
+    public String addEvent(final CommandInput commandInput) {
+        return commandInput.getUsername() + " is not an artist.";
+    }
+
+    public String addPodcast(final CommandInput commandInput) {
+        return commandInput.getUsername() + " is not a host.";
     }
 
 }

@@ -14,10 +14,12 @@ import java.util.List;
  */
 public final class Player {
     private final int skipTime = 90;
+    @Getter
     private final ArrayList<PodcastBookmark> bookmarks = new ArrayList<>();
     private Enums.RepeatMode repeatMode;
     private boolean shuffle;
     private boolean paused;
+    @Getter
     private PlayerSource source;
     @Getter
     private String type;

@@ -7,17 +7,19 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public final class Homepage extends Page {
+public final class HomePage extends Page {
     // A particular page that displays the user's liked songs and followed playlists.
     @Getter
-    private ArrayList<Song> recommendedSongs = new ArrayList<>();
+    private ArrayList<Song> recommendedSongs;
     @Getter
-    private ArrayList<Playlist> recommendedPlaylists = new ArrayList<>();
+    private ArrayList<Playlist> recommendedPlaylists;
 
-    public Homepage() {
+    public HomePage() {
+        recommendedSongs = new ArrayList<>();
+        recommendedPlaylists = new ArrayList<>();
     }
 
-    public Homepage(final ArrayList<Song> recommendedSongs, final ArrayList<Playlist> followedPlaylists) {
+    public HomePage(final ArrayList<Song> recommendedSongs, final ArrayList<Playlist> followedPlaylists) {
         this.recommendedSongs = recommendedSongs;
         this.recommendedPlaylists = followedPlaylists;
     }
