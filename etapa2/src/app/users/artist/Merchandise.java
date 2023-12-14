@@ -1,4 +1,4 @@
-package app.user;
+package app.users.artist;
 
 import lombok.Getter;
 

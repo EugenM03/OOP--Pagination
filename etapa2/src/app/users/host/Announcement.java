@@ -1,4 +1,4 @@
-package app.user;
+package app.users.host;
 
 import app.audio.LibraryEntry;
 import lombok.Getter;

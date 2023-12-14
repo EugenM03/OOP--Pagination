@@ -79,10 +79,6 @@ public final class Main {
                 CommandInput[].class);
         ArrayNode outputs = objectMapper.createArrayNode();
 
-//        if(!filePath1.contains("test05"))
-//            return;
-
-
         Admin.setUsers(library.getUsers());
         Admin.setSongs(library.getSongs());
         Admin.setPodcasts(library.getPodcasts());
@@ -133,7 +129,7 @@ public final class Main {
                 case "addAlbum" -> outputs.add(CommandRunner.addAlbum(command));
                 case "removeAlbum" -> outputs.add(CommandRunner.removeAlbum(command));
                 case "addEvent" -> outputs.add(CommandRunner.addEvent(command));
-//                case "removeEvent" -> outputs.add(CommandRunner.removeEvent(command));
+                case "removeEvent" -> outputs.add(CommandRunner.removeEvent(command));
                 case "addMerch" -> outputs.add(CommandRunner.addMerch(command));
 
                 // Host commands
@@ -147,8 +143,8 @@ public final class Main {
                         outputs.add(CommandRunner.switchConnectionStatus(command));
 
                 // General statistics
-//                case "getTop5Albums" -> outputs.add(CommandRunner.getTop5Albums(command));
-//                case "getTop5Artists" -> outputs.add(CommandRunner.getTop5Artists(command));
+                case "getTop5Albums" -> outputs.add(CommandRunner.getTop5Albums(command));
+                case "getTop5Artists" -> outputs.add(CommandRunner.getTop5Artists(command));
                 case "getAllUsers" -> outputs.add(CommandRunner.getAllUsers(command));
                 case "getOnlineUsers" -> outputs.add(CommandRunner.getOnlineUsers(command));
 

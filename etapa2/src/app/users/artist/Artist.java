@@ -1,11 +1,12 @@
-package app.user;
+package app.users.artist;
 
 import app.audio.Collections.Album;
 import app.audio.Collections.AudioCollection;
 import app.audio.Files.AudioFile;
 import app.audio.Files.Song;
-import app.page.ArtistPage;
+import app.pages.ArtistPage;
 import app.player.Player;
+import app.users.User;
 import fileio.input.CommandInput;
 import lombok.Getter;
 
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static app.utils.DataValidation.*;
+import static app.utils.ValidDateConstants.*;
 
 public class Artist extends User {
     @Getter
@@ -42,8 +43,7 @@ public class Artist extends User {
         super.setPage(new ArtistPage(this, this.albums, this.merchandise, this.events));
     }
 
-    // TODO
-    private static boolean isValidDate(final String date) {
+    private static boolean isDateValid(final String date) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         sdf.setLenient(false); // Input must match the exact format
 
@@ -69,7 +69,7 @@ public class Artist extends User {
     }
 
     /**
-     * Switch connection status.
+     * Switch connection status (implemented for NORMAL users).
      *
      * @param commandInput the command input
      * @return the output message
@@ -89,7 +89,7 @@ public class Artist extends User {
     public String addAlbum(final CommandInput commandInput) {
         ArrayList<Song> songs = new ArrayList<>();
 
-        // Convert the song inputs Song objects
+        // Convert the song json inputs to Song objects
         commandInput.getSongs().forEach(songInput ->
                 songs.add(new Song(
                         songInput.getName(),
@@ -104,8 +104,8 @@ public class Artist extends User {
         );
 
         // Creating the album and checking its validity
-        Album newAlbum = new Album(commandInput.getName(), commandInput.getUsername(), songs,
-                commandInput.getReleaseYear(), commandInput.getDescription());
+        Album newAlbum = new Album(commandInput.getName(), commandInput.getUsername(),
+                songs, commandInput.getReleaseYear(), commandInput.getDescription());
 
         // Check if the artist already has an album with the same name
         if (this.albums.stream().anyMatch(album -> album.matchesName(newAlbum.getName()))) {
@@ -128,13 +128,13 @@ public class Artist extends User {
     }
 
     /**
-     * Remove album string.
+     * Remove an album (implemented for artist).
      *
      * @param commandInput the command input
      * @return the string
      */
     @Override
-    public String removeAlbum(CommandInput commandInput) {
+    public String removeAlbum(final CommandInput commandInput) {
         // First, we try to find the album corresponding to the given username
         Album foundAlbum = albums.stream()
                 .filter(album -> album.matchesName(commandInput.getName()))
@@ -147,19 +147,20 @@ public class Artist extends User {
             for (User currUser : Admin.getUsers()) {
                 Player currPlayer = currUser.getPlayer();
 
+                // Continuing only if the music player is playing
                 if (currPlayer != null && currPlayer.getSource() != null) {
                     AudioCollection currCollection = currPlayer.getSource().getAudioCollection();
                     AudioFile currFile = currPlayer.getSource().getAudioFile();
+
                     // Checking to see if the album is currently loaded into the music player
-                    if (currCollection != null &&
-                            currCollection.matchesName(foundAlbum.getName())) {
+                    if (currCollection != null
+                            && currCollection.matchesName(foundAlbum.getName())) {
                         deleteAlbum = false;
                         break;
                     }
 
                     // Checking if the current source is a playlist and if it contains at least
                     // a song from the album to be deleted
-                    // TODO
                     if (currCollection != null) {
                         for (int i = 0; i < currCollection.getNumberOfTracks(); i++) {
                             for (Song currSong : foundAlbum.getSongs()) {
@@ -185,7 +186,7 @@ public class Artist extends User {
             }
 
             if (deleteAlbum) {
-                albums.remove(foundAlbum);
+                this.albums.remove(foundAlbum);
                 return commandInput.getUsername() + " deleted the album successfully.";
             } else {
                 return commandInput.getUsername() + " can't delete this album.";
@@ -208,7 +209,8 @@ public class Artist extends User {
                 commandInput.getDescription(), commandInput.getPrice());
 
         // Check if a merch with the same name already exists
-        if (merchandise.stream().anyMatch(merch -> merch.getName().equals(newMerch.getName()))) {
+        if (this.merchandise.stream().anyMatch(merch ->
+                merch.getName().equals(newMerch.getName()))) {
             return commandInput.getUsername() + " has merchandise with the same name.";
         }
 
@@ -218,7 +220,7 @@ public class Artist extends User {
         }
 
         // If the merch is valid, we add it to the list of merch and return the output message
-        merchandise.add(newMerch);
+        this.merchandise.add(newMerch);
         return commandInput.getUsername() + " has added new merchandise successfully.";
     }
 
@@ -234,18 +236,51 @@ public class Artist extends User {
                 commandInput.getDescription(), commandInput.getDate());
 
         // Check if an event with the same name already exists
-        if (events.stream().anyMatch(event -> event.getName().equals(newEvent.getName()))) {
+        if (this.events.stream().anyMatch(event -> event.getName().equals(newEvent.getName()))) {
             return commandInput.getUsername() + " has another event with the same name.";
         }
 
         // Check if the date is valid
-        if (!isValidDate(commandInput.getDate())) {
-            return "Event " + commandInput.getUsername() + " does not have a valid date.";
+        if (!isDateValid(commandInput.getDate())) {
+            return "Event for " + commandInput.getUsername() + " does not have a valid date.";
         }
 
         // If the event is valid, we add it to the list of events and return the output message
-        events.add(newEvent);
+        this.events.add(newEvent);
         return commandInput.getUsername() + " has added new event successfully.";
+    }
+
+    /**
+     * Remove an event (implemented for artist).
+     *
+     * @param commandInput the command input
+     * @return the string
+     */
+    public String removeEvent(final CommandInput commandInput) {
+        // Search for the event with the given name
+        boolean foundEvent = events.removeIf(event ->
+                event.getName().equals(commandInput.getName()));
+
+        // Depending on the result, we return the corresponding output message
+        if (foundEvent) {
+            return commandInput.getUsername() + " deleted the event successfully.";
+        } else {
+            return commandInput.getUsername() + " has no event with the given name.";
+        }
+    }
+
+    /**
+     * Gets total likes for an artist (i.e. the sum of likes for all of their albums).
+     *
+     * @return the total likes
+     */
+    public int getLikes() {
+        int totalLikes = 0;
+        for (Album album : albums) {
+            totalLikes += album.getLikes();
+        }
+
+        return totalLikes;
     }
 }
 

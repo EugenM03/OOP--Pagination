@@ -1,6 +1,6 @@
-package app.page;
+package app.pages;
 
-import app.user.User;
+import app.users.User;
 import lombok.Getter;
 
 public abstract class Page {

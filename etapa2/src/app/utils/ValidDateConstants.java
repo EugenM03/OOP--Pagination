@@ -1,6 +1,6 @@
 package app.utils;
 
-public final class DataValidation {
+public final class ValidDateConstants {
     // Many constants used for Data Validation (dd-mm-yyyy).
     public static final int DAY_MIN = 1;
     public static final int DAY_MAX = 31;
@@ -18,6 +18,6 @@ public final class DataValidation {
     public static final int DAY_MAX_FEBRUARY = 28;
     public static final int THIRTY = 30;
 
-    private DataValidation() {
+    private ValidDateConstants() {
     }
 }

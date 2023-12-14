@@ -110,22 +110,6 @@ public final class CommandInput {
         this.seed = seed;
     }
 
-//    @Override                                                                                     // TODO
-//    public String toString() {
-//        return "CommandInput{"
-//                + "command='" + command + '\''
-//                + ", username='" + username + '\''
-//                + ", timestamp=" + timestamp
-//                + ", type='" + type + '\''
-//                + ", filters=" + filters
-//                + ", itemNumber=" + itemNumber
-//                + ", repeatMode=" + repeatMode
-//                + ", playlistId=" + playlistId
-//                + ", playlistName='" + playlistName + '\''
-//                + ", seed=" + seed
-//                + '}';
-//    }
-
     public int getAge() {
         return age;
     }
@@ -206,29 +190,29 @@ public final class CommandInput {
         this.nextPage = nextPage;
     }
 
-//    @Override
-//    public String toString() {
-//        return "CommandInput{" +
-//                "command='" + command + '\'' +
-//                ", username='" + username + '\'' +
-//                ", timestamp=" + timestamp +
-//                ", type='" + type + '\'' +
-//                ", filters=" + filters +
-//                ", itemNumber=" + itemNumber +
-//                ", repeatMode=" + repeatMode +
-//                ", playlistId=" + playlistId +
-//                ", playlistName='" + playlistName + '\'' +
-//                ", seed=" + seed +
-//                ", age=" + age +
-//                ", city='" + city + '\'' +
-//                ", name='" + name + '\'' +
-//                ", releaseYear=" + releaseYear +
-//                ", description='" + description + '\'' +
-//                ", songs=" + Arrays.toString(songs) +
-//                ", date='" + date + '\'' +
-//                ", price=" + price +
-//                ", episodes=" + Arrays.toString(episodes) +
-//                ", nextPage='" + nextPage + '\'' +
-//                '}';
-//    }
+    @Override
+    public String toString() {
+        return "CommandInput{"
+                + "command='" + command + '\''
+                + ", username='" + username + '\''
+                + ", timestamp=" + timestamp
+                + ", type='" + type + '\''
+                + ", filters=" + filters
+                + ", itemNumber=" + itemNumber
+                + ", repeatMode=" + repeatMode
+                + ", playlistId=" + playlistId
+                + ", playlistName='" + playlistName + '\''
+                + ", seed=" + seed
+                + ", age=" + age
+                + ", city='" + city + '\''
+                + ", name='" + name + '\''
+                + ", releaseYear=" + releaseYear
+                + ", description='" + description + '\''
+                + ", songs=" + songs
+                + ", date='" + date + '\''
+                + ", price=" + price
+                + ", episodes=" + episodes
+                + ", nextPage='" + nextPage + '\''
+                + '}';
+    }
 }

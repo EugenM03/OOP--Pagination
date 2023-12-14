@@ -1,4 +1,4 @@
-package app.page;
+package app.pages;
 
 import app.audio.Collections.Playlist;
 import app.audio.Files.Song;
@@ -54,8 +54,9 @@ public final class HomePage extends Page {
         ArrayList<String> topPlaylists = new ArrayList<>();
 
         ArrayList<Playlist> copiedRecommendedPlaylists = new ArrayList<>(recommendedPlaylists);
+
         // Sort alphabetically
-        copiedRecommendedPlaylists.sort(Comparator.comparing(Playlist::getName));
+        Collections.sort(copiedRecommendedPlaylists, Comparator.comparing(Playlist::getName));
 
         Iterator<Playlist> playlistIterator = copiedRecommendedPlaylists.iterator();
 

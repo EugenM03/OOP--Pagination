@@ -1,8 +1,8 @@
-package app.page;
+package app.pages;
 
 import app.audio.Collections.Podcast;
-import app.user.Announcement;
-import app.user.Host;
+import app.users.host.Announcement;
+import app.users.host.Host;
 import lombok.Getter;
 
 import java.util.ArrayList;

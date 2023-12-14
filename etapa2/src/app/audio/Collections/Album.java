@@ -12,7 +12,7 @@ public class Album extends AudioCollection {
     @Getter
     private final List<Song> songs;
     @Getter
-    private final Integer releaseYear;
+    private final int releaseYear;
     @Getter
     private final String description;
 
@@ -26,7 +26,7 @@ public class Album extends AudioCollection {
      * @param description the description
      */
     public Album(final String name, final String owner, final ArrayList<Song> songs,
-                 final Integer releaseYear, final String description) {
+                 final int releaseYear, final String description) {
         super(name, owner);
         this.songs = songs;
         this.releaseYear = releaseYear;
@@ -47,7 +47,7 @@ public class Album extends AudioCollection {
      * Gets track by index.
      *
      * @param index the index
-     * @return the track by index
+     * @return the track by the respective index
      */
     @Override
     public AudioFile getTrackByIndex(final int index) {
@@ -55,13 +55,28 @@ public class Album extends AudioCollection {
     }
 
     /**
-     * Filter for album string.
+     * Filter for album.
      *
      * @param name the name filter
-     * @return the string
+     * @return the boolean
      */
     @Override
     public boolean matchesDescription(final String name) {
         return this.getDescription().toLowerCase().startsWith(name);
+    }
+
+    /**
+     * Gets total likes for an album (i.e. the sum of likes for all songs on the album).
+     *
+     * @return the total likes
+     */
+    public int getLikes() {
+        int totalLikes = 0;
+
+        for (Song song : songs) {
+            totalLikes += song.getLikes();
+        }
+
+        return totalLikes;
     }
 }

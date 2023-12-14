@@ -5,9 +5,9 @@ import app.audio.Files.Song;
 import app.audio.LibraryEntry;
 import app.player.PlayerStats;
 import app.searchBar.Filters;
-import app.user.Artist;
-import app.user.Host;
-import app.user.User;
+import app.users.artist.Artist;
+import app.users.host.Host;
+import app.users.User;
 import app.audio.Collections.AlbumOutput;
 import app.audio.Collections.PodcastOutput;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +25,7 @@ public final class CommandRunner {
     /**
      * The Object mapper.
      */
-    private static final ObjectMapper objectMapper = new ObjectMapper();                                  // Let it be not final!
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private CommandRunner() {
     }
@@ -582,6 +582,7 @@ public final class CommandRunner {
 
     /**
      * Change page object node.
+     *
      * @param commandInput the command input
      * @return the object node
      */
@@ -624,23 +625,7 @@ public final class CommandRunner {
         return objectNode;
     }
 
-    /**
-     * Delete user object node.
-     *
-     * @param commandInput the command input
-     * @return the object node
-     */
-    public static ObjectNode deleteUser(final CommandInput commandInput) {
 
-        String message = Admin.deleteUser(commandInput);
-        ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put("command", commandInput.getCommand());
-        objectNode.put("user", commandInput.getUsername());
-        objectNode.put("timestamp", commandInput.getTimestamp());
-        objectNode.put("message", message);
-
-        return objectNode;
-    }
 
     /**
      * Show albums object node.
@@ -649,9 +634,11 @@ public final class CommandRunner {
      * @return the object node
      */
     public static ObjectNode showAlbums(final CommandInput commandInput) {
-        Artist artist = (Artist) Admin.getUser(commandInput.getUsername());
-        List<AlbumOutput> albumsOutput = artist != null
-                ? artist.getAlbums().stream()
+        Artist currArtist = (Artist) Admin.getUser(commandInput.getUsername());
+
+        // Using streams to map the albums to the required output
+        List<AlbumOutput> albumsOutput = currArtist != null
+                ? currArtist.getAlbums().stream()
                 .map(album -> {
                     AlbumOutput albumOutput = new AlbumOutput();
                     albumOutput.setName(album.getName());
@@ -680,6 +667,8 @@ public final class CommandRunner {
      */
     public static ObjectNode showPodcasts(final CommandInput commandInput) {
         Host host = (Host) Admin.getUser(commandInput.getUsername());
+
+        // Using streams to map the podcasts to the required output
         List<PodcastOutput> podcastsOutput = host != null
                 ? host.getPodcasts().stream()
                 .map(podcast -> {
@@ -727,6 +716,12 @@ public final class CommandRunner {
         return objectNode;
     }
 
+    /**
+     * Remove album object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
     public static ObjectNode removeAlbum(final CommandInput commandInput) {
         String message;
 
@@ -762,6 +757,30 @@ public final class CommandRunner {
             message = "The username " + commandInput.getUsername() + " doesn't exist.";
         }
 
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Remove event object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode removeEvent(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.removeEvent(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("command", commandInput.getCommand());
         objectNode.put("user", commandInput.getUsername());
@@ -821,6 +840,12 @@ public final class CommandRunner {
         return objectNode;
     }
 
+    /**
+     * Remove podcast object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
     public static ObjectNode removePodcast(final CommandInput commandInput) {
         String message;
 
@@ -910,6 +935,40 @@ public final class CommandRunner {
         objectNode.put("user", commandInput.getUsername());
         objectNode.put("timestamp", commandInput.getTimestamp());
         objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Gets top 5 albums.
+     *
+     * @param commandInput the command input
+     * @return the top 5 albums
+     */
+    public static ObjectNode getTop5Albums(final CommandInput commandInput) {
+        List<String> albums = Admin.getTop5Albums();
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("result", objectMapper.valueToTree(albums));
+
+        return objectNode;
+    }
+
+    /**
+     * Gets top 5 artists.
+     *
+     * @param commandInput the command input
+     * @return the top 5 artists
+     */
+    public static ObjectNode getTop5Artists(final CommandInput commandInput) {
+        List<String> artists = Admin.getTop5Artists();
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("result", objectMapper.valueToTree(artists));
 
         return objectNode;
     }

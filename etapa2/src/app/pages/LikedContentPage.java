@@ -1,4 +1,4 @@
-package app.page;
+package app.pages;
 
 import app.audio.Collections.Playlist;
 import app.audio.Files.Song;
@@ -25,8 +25,12 @@ public final class LikedContentPage extends Page {
 
     @Override
     public String printPage() {
+        // Printing the LikedContentPage - we will take cases for each type of content
+        // and concatenate them into a single string; we use StringBuilder functions
         String printString = "";
+
         StringBuilder songsString = new StringBuilder("Liked songs:\n\t[");
+        // Songs case
         for (Song song : likedSongs) {
             songsString.append(song.getName()).append(" - ").append(song.getArtist());
             if (likedSongs.indexOf(song) < likedSongs.size() - 1) {
@@ -37,6 +41,7 @@ public final class LikedContentPage extends Page {
         songsString.append("]\n\n");
         printString += songsString;
 
+        // Playlists case
         StringBuilder playlistsString = new StringBuilder("Followed playlists:\n\t[");
         for (Playlist playlist : likedPlaylists) {
             playlistsString.append(playlist.getName()).append(" - ").append(playlist.getOwner());

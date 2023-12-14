@@ -1,9 +1,9 @@
-package app.page;
+package app.pages;
 
 import app.audio.Collections.Album;
-import app.user.Artist;
-import app.user.Event;
-import app.user.Merchandise;
+import app.users.artist.Artist;
+import app.users.artist.Event;
+import app.users.artist.Merchandise;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -40,13 +40,13 @@ public final class ArtistPage extends Page {
 
         // Albums case
         StringBuilder albumsString = new StringBuilder("Albums:\n\t[");
-
         for (Album album : albums) {
             albumsString.append(album.getName());
             if (albums.indexOf(album) < albums.size() - 1) {
                 albumsString.append(", ");
             }
         }
+
         albumsString.append("]\n\n");
         printString += albumsString;
 
@@ -60,6 +60,7 @@ public final class ArtistPage extends Page {
                 merchandiseString.append(", ");
             }
         }
+
         merchandiseString.append("]\n\n");
         printString += merchandiseString;
 
@@ -73,6 +74,7 @@ public final class ArtistPage extends Page {
                 eventsString.append(", ");
             }
         }
+
         eventsString.append("]");
         printString += eventsString;
 

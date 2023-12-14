@@ -1,11 +1,11 @@
-package app.user;
+package app.users.host;
 
 import app.Admin;
-import app.audio.Collections.AudioCollection;
 import app.audio.Collections.Podcast;
 import app.audio.Files.Episode;
-import app.page.HostPage;
+import app.pages.HostPage;
 import app.player.Player;
+import app.users.User;
 import fileio.input.CommandInput;
 import lombok.Getter;
 
@@ -25,7 +25,7 @@ public final class Host extends User {
     }
 
     /**
-     * Switch connection status.
+     * Switch connection status (implemented for NORMAL users).
      *
      * @param commandInput the command input
      * @return the output message
@@ -36,14 +36,14 @@ public final class Host extends User {
     }
 
     /**
-     * Adds  podcast.
+     * Add a podcast (implemented for host).
      *
      * @param commandInput the command input
      * @return the output message
      */
     @Override
     public String addPodcast(final CommandInput commandInput) {
-        // Convert to episode inputs Episodes objects
+        // Convert episode json inputs to Episode objects
         ArrayList<Episode> episodes = new ArrayList<>();
         commandInput.getEpisodes().forEach(episodeInput ->
                 episodes.add(new Episode(
@@ -72,8 +72,8 @@ public final class Host extends User {
                     + " has the same episode at least twice in this podcast.";
         }
 
-        // If the podcast is valid, add it to the list of podcasts (no duplicates allowed)
-        // and afterwards we add the podcast to the host's list of podcasts
+        // If the podcast is valid, add it to the list of podcasts
+        // and afterwards add the podcast to the host's list of podcasts
         Set<String> podcastNames = this.podcasts.stream()
                 .map(Podcast::getName)
                 .collect(Collectors.toSet());
@@ -84,6 +84,12 @@ public final class Host extends User {
         return commandInput.getUsername() + " has added new podcast successfully.";
     }
 
+    /**
+     * Remove podcast (implemented for host).
+     *
+     * @param commandInput the command input
+     * @return the output message
+     */
     @Override
     public String removePodcast(final CommandInput commandInput) {
         // Trying to found the podcast with the given name
@@ -97,6 +103,8 @@ public final class Host extends User {
             boolean deletePodcast = true;
             for (User currUser : Admin.getUsers()) {
                 Player currPlayer = currUser.getPlayer();
+
+                // Check if the music player is playing the podcast
                 if (currPlayer != null
                         && currPlayer.getSource() != null
                         && currPlayer.getSource().getAudioCollection() != null
@@ -122,7 +130,7 @@ public final class Host extends User {
     }
 
     /**
-     * Adds announcement.
+     * Add announcement (implemented for host).
      *
      * @param commandInput the command input
      * @return the output message
@@ -145,7 +153,7 @@ public final class Host extends User {
     }
 
     /**
-     * Removes announcement.
+     * Removes announcement (implemented for host).
      *
      * @param commandInput the command input
      * @return the output message
@@ -153,10 +161,10 @@ public final class Host extends User {
     @Override
     public String removeAnnouncement(final CommandInput commandInput) {
         // Trying to found the announcement with the given name
-        boolean found = announcements.removeIf(announcement ->
+        boolean foundAnnouncement = announcements.removeIf(announcement ->
                 announcement.getName().equals(commandInput.getName()));
 
-        if (found) {
+        if (foundAnnouncement) {
             return commandInput.getUsername() + " has successfully deleted the announcement.";
         } else {
             return commandInput.getUsername() + " has no announcement with the given name.";
