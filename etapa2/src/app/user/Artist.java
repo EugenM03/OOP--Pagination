@@ -1,8 +1,11 @@
 package app.user;
 
 import app.audio.Collections.Album;
+import app.audio.Collections.AudioCollection;
+import app.audio.Files.AudioFile;
 import app.audio.Files.Song;
 import app.page.ArtistPage;
+import app.player.Player;
 import fileio.input.CommandInput;
 import lombok.Getter;
 
@@ -21,7 +24,7 @@ public class Artist extends User {
     @Getter
     private final ArrayList<Event> events = new ArrayList<>();
     @Getter
-    private final ArrayList<Merch> merchandise = new ArrayList<>();
+    private final ArrayList<Merchandise> merchandise = new ArrayList<>();
 
     // Used for data validation
 
@@ -32,14 +35,14 @@ public class Artist extends User {
      * @param username the username
      * @param age      the age
      * @param city     the city
-     * @param userType the type of user
+     * @param type     the type of user
      */
-    public Artist(final String username, final int age, final String city, final String userType) {
-        super(username, age, city, userType);
+    public Artist(final String username, final int age, final String city, final String type) {
+        super(username, age, city, type);
         super.setPage(new ArtistPage(this, this.albums, this.merchandise, this.events));
     }
 
-    // TODO (ChatGpt helped)
+    // TODO
     private static boolean isValidDate(final String date) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         sdf.setLenient(false); // Input must match the exact format
@@ -49,6 +52,7 @@ public class Artist extends User {
         int month = Integer.parseInt(date.substring(3, 5));
         int year = Integer.parseInt(date.substring(6, 10));
 
+        // Check if the date is in the correct range
         if (day < DAY_MIN || day > DAY_MAX || month < MONTH_MIN || month > MONTH_MAX
                 || year < YEAR_MIN || year > YEAR_MAX) {
             return false;
@@ -56,8 +60,8 @@ public class Artist extends User {
 
         // Verify the day depending on the month
         if (month == APRIL || month == JUNE || month == SEPTEMBER || month == NOVEMBER) {
-            return day <= DAY_MAX_THIRTY_CASE;
-        } else if (month == 2) {
+            return day <= THIRTY;
+        } else if (month == FEBRUARY) {
             return day <= DAY_MAX_FEBRUARY;
         } else {
             return true;
@@ -99,18 +103,16 @@ public class Artist extends User {
                 ))
         );
 
-
         // Creating the album and checking its validity
         Album newAlbum = new Album(commandInput.getName(), commandInput.getUsername(), songs,
                 commandInput.getReleaseYear(), commandInput.getDescription());
-
 
         // Check if the artist already has an album with the same name
         if (this.albums.stream().anyMatch(album -> album.matchesName(newAlbum.getName()))) {
             return commandInput.getUsername() + " has another album with the same name.";
         }
 
-        // Check if the album has duplicate songs (used ChatGPT for help on duplicating)
+        // Check if the album has duplicate songs
         Set<String> songNames = newAlbum.getSongs().stream()
                 .map(Song::getName)
                 .collect(Collectors.toSet());
@@ -119,18 +121,79 @@ public class Artist extends User {
             return commandInput.getUsername() + " has the same song at least twice in this album.";
         }
 
-        // If the album is valid, we add the songs to the album (no duplicates allowed)
-        // and afterwards we add the album to the artist's list of albums (ChatGPT helped)
-        Set<String> songNamesInAdmin = Admin.getSongs()
-                .stream()
-                .map(Song::getName)
-                .collect(Collectors.toSet());
-
-
         // Finally, we add the song to the corresponding list and return the output message
         Admin.addSongs(newAlbum.getSongs());
         this.albums.add(newAlbum);
         return commandInput.getUsername() + " has added new album successfully.";
+    }
+
+    /**
+     * Remove album string.
+     *
+     * @param commandInput the command input
+     * @return the string
+     */
+    @Override
+    public String removeAlbum(CommandInput commandInput) {
+        // First, we try to find the album corresponding to the given username
+        Album foundAlbum = albums.stream()
+                .filter(album -> album.matchesName(commandInput.getName()))
+                .findFirst()
+                .orElse(null);
+
+        if (foundAlbum != null) {
+            // Check if we can delete the album safely
+            boolean deleteAlbum = true;
+            for (User currUser : Admin.getUsers()) {
+                Player currPlayer = currUser.getPlayer();
+
+                if (currPlayer != null && currPlayer.getSource() != null) {
+                    AudioCollection currCollection = currPlayer.getSource().getAudioCollection();
+                    AudioFile currFile = currPlayer.getSource().getAudioFile();
+                    // Checking to see if the album is currently loaded into the music player
+                    if (currCollection != null &&
+                            currCollection.matchesName(foundAlbum.getName())) {
+                        deleteAlbum = false;
+                        break;
+                    }
+
+                    // Checking if the current source is a playlist and if it contains at least
+                    // a song from the album to be deleted
+                    // TODO
+                    if (currCollection != null) {
+                        for (int i = 0; i < currCollection.getNumberOfTracks(); i++) {
+                            for (Song currSong : foundAlbum.getSongs()) {
+                                if (currCollection.getTrackByIndex(i)
+                                        .matchesName(currSong.getName())) {
+                                    deleteAlbum = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Checking to see if the current source is a song from the album to be deleted
+                    if (currFile != null) {
+                        for (Song currSong : foundAlbum.getSongs()) {
+                            if (currFile.matchesName(currSong.getName())) {
+                                deleteAlbum = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (deleteAlbum) {
+                albums.remove(foundAlbum);
+                return commandInput.getUsername() + " deleted the album successfully.";
+            } else {
+                return commandInput.getUsername() + " can't delete this album.";
+            }
+        } else {
+            // We didn't find an album
+            return commandInput.getUsername() + " doesn't have an album with the given name.";
+        }
     }
 
     /**
@@ -141,7 +204,7 @@ public class Artist extends User {
      */
     @Override
     public String addMerch(final CommandInput commandInput) {
-        Merch newMerch = new Merch(commandInput.getName(),
+        Merchandise newMerch = new Merchandise(commandInput.getName(),
                 commandInput.getDescription(), commandInput.getPrice());
 
         // Check if a merch with the same name already exists

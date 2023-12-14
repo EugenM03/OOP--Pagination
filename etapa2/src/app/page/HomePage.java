@@ -5,6 +5,8 @@ import app.audio.Files.Song;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 public final class HomePage extends Page {
@@ -20,19 +22,24 @@ public final class HomePage extends Page {
     }
 
     public HomePage(final ArrayList<Song> recommendedSongs,
-                    final ArrayList<Playlist> followedPlaylists) {
+                    final ArrayList<Playlist> recommendedPlaylists) {
         this.recommendedSongs = recommendedSongs;
-        this.recommendedPlaylists = followedPlaylists;
+        this.recommendedPlaylists = recommendedPlaylists;
     }
 
     @Override
     public String printPage() {
+        // Printing top 5 liked songs and top 5 followed playlists, as required
         ArrayList<String> topSongs = new ArrayList<>();
+        ArrayList<Song> copiedRecommendedSongs = new ArrayList<>(recommendedSongs);
         int results = 0;
+
+        // Sort by likes in descending order
+        Collections.sort(copiedRecommendedSongs, Comparator.comparing(Song::getLikes).reversed());
 
         // We iterate through the top liked songs and
         // add them to the topSongs list (5 maximum).
-        Iterator<Song> songIterator = recommendedSongs.iterator();
+        Iterator<Song> songIterator = copiedRecommendedSongs.iterator();
 
         while (songIterator.hasNext() && results < MAX_RESULTS) {
             Song song = songIterator.next();
@@ -40,10 +47,17 @@ public final class HomePage extends Page {
             results++;
         }
 
+        results = 0;
+
         // We iterate through the top playlists and
         // add them to the topPlaylists list (5 maximum).
         ArrayList<String> topPlaylists = new ArrayList<>();
-        Iterator<Playlist> playlistIterator = this.recommendedPlaylists.iterator();
+
+        ArrayList<Playlist> copiedRecommendedPlaylists = new ArrayList<>(recommendedPlaylists);
+        // Sort alphabetically
+        copiedRecommendedPlaylists.sort(Comparator.comparing(Playlist::getName));
+
+        Iterator<Playlist> playlistIterator = copiedRecommendedPlaylists.iterator();
 
         while (playlistIterator.hasNext() && results < MAX_RESULTS) {
             Playlist playlist = playlistIterator.next();
@@ -55,6 +69,4 @@ public final class HomePage extends Page {
         return "Liked songs:\n\t" + topSongs
                 + "\n\n" + "Followed playlists:\n\t" + topPlaylists;
     }
-
-
 }

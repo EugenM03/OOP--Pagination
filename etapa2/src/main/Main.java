@@ -79,6 +79,10 @@ public final class Main {
                 CommandInput[].class);
         ArrayNode outputs = objectMapper.createArrayNode();
 
+//        if(!filePath1.contains("test05"))
+//            return;
+
+
         Admin.setUsers(library.getUsers());
         Admin.setSongs(library.getSongs());
         Admin.setPodcasts(library.getPodcasts());
@@ -114,21 +118,39 @@ public final class Main {
 
                 // Starting from the source code, here begins the implementation of the
                 // required commands for the second stage of the project.
-                // TODO order by enunt
+
+                // Page system commands
+                case "printCurrentPage" -> outputs.add(CommandRunner.printCurrentPage(command));
+                case "changePage" -> outputs.add(CommandRunner.changePage(command));
+
+                // Admin commands
+                case "addUser" -> outputs.add(CommandRunner.addUser(command));
+//                case "deleteUser" -> outputs.add(CommandRunner.deleteUser(command));
+                case "showAlbums" -> outputs.add(CommandRunner.showAlbums(command));
+                case "showPodcasts" -> outputs.add(CommandRunner.showPodcasts(command));
+
+                // Artist commands
+                case "addAlbum" -> outputs.add(CommandRunner.addAlbum(command));
+                case "removeAlbum" -> outputs.add(CommandRunner.removeAlbum(command));
+                case "addEvent" -> outputs.add(CommandRunner.addEvent(command));
+//                case "removeEvent" -> outputs.add(CommandRunner.removeEvent(command));
+                case "addMerch" -> outputs.add(CommandRunner.addMerch(command));
+
+                // Host commands
+                case "addPodcast" -> outputs.add(CommandRunner.addPodcast(command));
+                case "removePodcast" -> outputs.add(CommandRunner.removePodcast(command));
+                case "addAnnouncement" -> outputs.add(CommandRunner.addAnnouncement(command));
+                case "removeAnnouncement" -> outputs.add(CommandRunner.removeAnnouncement(command));
+
+                // Normal user commands
                 case "switchConnectionStatus" ->
                         outputs.add(CommandRunner.switchConnectionStatus(command));
-                case "getOnlineUsers" -> outputs.add(CommandRunner.getOnlineUsers(command));
-                case "addUser" -> outputs.add(CommandRunner.addUser(command));
-                case "addAlbum" -> outputs.add(CommandRunner.addAlbum(command));
-                case "showAlbums" -> outputs.add(CommandRunner.showAlbums(command));
-                case "printCurrentPage" -> outputs.add(CommandRunner.printCurrentPage(command));
-                case "addMerch" -> outputs.add(CommandRunner.addMerch(command));
-                case "addEvent" -> outputs.add(CommandRunner.addEvent(command));
 
+                // General statistics
+//                case "getTop5Albums" -> outputs.add(CommandRunner.getTop5Albums(command));
+//                case "getTop5Artists" -> outputs.add(CommandRunner.getTop5Artists(command));
                 case "getAllUsers" -> outputs.add(CommandRunner.getAllUsers(command));
-                case "deleteUser" -> outputs.add(CommandRunner.deleteUser(command));    // TODO
-
-                case "addPodcast" -> outputs.add(CommandRunner.addPodcast(command));
+                case "getOnlineUsers" -> outputs.add(CommandRunner.getOnlineUsers(command));
 
                 default -> System.out.println("Invalid command " + commandName);
             }

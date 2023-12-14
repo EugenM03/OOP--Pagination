@@ -2,11 +2,14 @@ package app;
 
 import app.audio.Collections.PlaylistOutput;
 import app.audio.Files.Song;
+import app.audio.LibraryEntry;
 import app.player.PlayerStats;
 import app.searchBar.Filters;
 import app.user.Artist;
+import app.user.Host;
 import app.user.User;
-import app.utils.AlbumOutput;
+import app.audio.Collections.AlbumOutput;
+import app.audio.Collections.PodcastOutput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fileio.input.CommandInput;
@@ -22,7 +25,7 @@ public final class CommandRunner {
     /**
      * The Object mapper.
      */
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();                                  // Let it be not final!
 
     private CommandRunner() {
     }
@@ -47,7 +50,6 @@ public final class CommandRunner {
                 results = user.search(filters, type);
                 message = "Search returned " + results.size() + " results";
             } else {
-                results = new ArrayList<>();
                 message = commandInput.getUsername() + " is offline.";
             }
         }
@@ -552,19 +554,21 @@ public final class CommandRunner {
     }
 
     /**
-     * Switch connection status object node.
+     * Print current page object node.
      *
      * @param commandInput the command input
      * @return the object node
      */
-    public static ObjectNode switchConnectionStatus(final CommandInput commandInput) {
-        User user = Admin.getUser(commandInput.getUsername());
-        String message;
+    public static ObjectNode printCurrentPage(final CommandInput commandInput) {
+        String message = null;
 
+        User user = Admin.getUser(commandInput.getUsername());
         if (user != null) {
-            message = user.switchConnectionStatus(commandInput);
-        } else {
-            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+            if (user.isOnline()) {
+                message = user.getPage().printPage();
+            } else {
+                message = commandInput.getUsername() + " is offline.";
+            }
         }
 
         ObjectNode objectNode = objectMapper.createObjectNode();
@@ -577,18 +581,27 @@ public final class CommandRunner {
     }
 
     /**
-     * Gets online users.
-     *
+     * Change page object node.
      * @param commandInput the command input
-     * @return the online users
+     * @return the object node
      */
-    public static ObjectNode getOnlineUsers(final CommandInput commandInput) {
-        List<String> onlineUsers = Admin.getOnlineUsers();
+    public static ObjectNode changePage(final CommandInput commandInput) {
+        String message = null;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            if (user.isOnline()) {
+                message = user.changePage(commandInput.getNextPage());
+            } else {
+                message = commandInput.getUsername() + " is offline.";
+            }
+        }
 
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
         objectNode.put("timestamp", commandInput.getTimestamp());
-        objectNode.put("result", objectMapper.valueToTree(onlineUsers));
+        objectNode.put("message", message);
 
         return objectNode;
     }
@@ -607,6 +620,84 @@ public final class CommandRunner {
         objectNode.put("user", commandInput.getUsername());
         objectNode.put("timestamp", commandInput.getTimestamp());
         objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Delete user object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode deleteUser(final CommandInput commandInput) {
+
+        String message = Admin.deleteUser(commandInput);
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Show albums object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode showAlbums(final CommandInput commandInput) {
+        Artist artist = (Artist) Admin.getUser(commandInput.getUsername());
+        List<AlbumOutput> albumsOutput = artist != null
+                ? artist.getAlbums().stream()
+                .map(album -> {
+                    AlbumOutput albumOutput = new AlbumOutput();
+                    albumOutput.setName(album.getName());
+                    albumOutput.setSongs(album.getSongs().stream()
+                            .map(Song::getName)
+                            .collect(Collectors.toList()));
+                    return albumOutput;
+                })
+                .collect(Collectors.toList())
+                : null;
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("result", objectMapper.valueToTree(albumsOutput));
+
+        return objectNode;
+    }
+
+    /**
+     * Show podcasts object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode showPodcasts(final CommandInput commandInput) {
+        Host host = (Host) Admin.getUser(commandInput.getUsername());
+        List<PodcastOutput> podcastsOutput = host != null
+                ? host.getPodcasts().stream()
+                .map(podcast -> {
+                    PodcastOutput podcastOutput = new PodcastOutput();
+                    podcastOutput.setName(podcast.getName());
+                    podcastOutput.setEpisodes(podcast.getEpisodes().stream()
+                            .map(LibraryEntry::getName)
+                            .collect(Collectors.toList()));
+                    return podcastOutput;
+                })
+                .collect(Collectors.toList())
+                : null;
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("result", objectMapper.valueToTree(podcastsOutput));
 
         return objectNode;
     }
@@ -636,76 +727,12 @@ public final class CommandRunner {
         return objectNode;
     }
 
-    /**
-     * Show albums object node.
-     *
-     * @param commandInput the command input
-     * @return the object node
-     */
-    public static ObjectNode showAlbums(final CommandInput commandInput) {
-        Artist artist = (Artist) Admin.getUser(commandInput.getUsername());
-        List<AlbumOutput> albumOutputs = artist != null
-                ? artist.getAlbums().stream()
-                .map(album -> {
-                    AlbumOutput albumOutput = new AlbumOutput();
-                    albumOutput.setName(album.getName());
-                    albumOutput.setSongs(album.getSongs().stream()
-                            .map(Song::getName)
-                            .collect(Collectors.toList()));
-                    return albumOutput;
-                })
-                .collect(Collectors.toList())
-                : null;
-
-        ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put("command", commandInput.getCommand());
-        objectNode.put("user", commandInput.getUsername());
-        objectNode.put("timestamp", commandInput.getTimestamp());
-        objectNode.put("result", objectMapper.valueToTree(albumOutputs));
-
-        return objectNode;
-    }
-
-    /**
-     * Print current page object node.
-     *
-     * @param commandInput the command input
-     * @return the object node
-     */
-
-    public static ObjectNode printCurrentPage(final CommandInput commandInput) {
-        String message = null;
-
-        User user = Admin.getUser(commandInput.getUsername());
-        if (user != null) {
-            if (user.isOnline()) {
-                message = user.getPage().printPage();
-            } else {
-                message = commandInput.getUsername() + " is offline.";
-            }
-        }
-
-        ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put("command", commandInput.getCommand());
-        objectNode.put("user", commandInput.getUsername());
-        objectNode.put("timestamp", commandInput.getTimestamp());
-        objectNode.put("message", message);
-
-        return objectNode;
-    }
-
-    /**
-     * Add merch object node.
-     *
-     * @param commandInput the command input
-     * @return the object node
-     */
-    public static ObjectNode addMerch(final CommandInput commandInput) {
+    public static ObjectNode removeAlbum(final CommandInput commandInput) {
         String message;
 
         User user = Admin.getUser(commandInput.getUsername());
         if (user != null) {
-            message = user.addMerch(commandInput);
+            message = user.removeAlbum(commandInput);
         } else {
             message = "The username " + commandInput.getUsername() + " doesn't exist.";
         }
@@ -745,30 +772,20 @@ public final class CommandRunner {
     }
 
     /**
-     * Gets all users.
-     *
-     * @param commandInput the command input
-     * @return the users
-     */
-    public static ObjectNode getAllUsers(final CommandInput commandInput) {
-        List<String> users = Admin.getAllUsers();
-
-        ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put("command", commandInput.getCommand());
-        objectNode.put("timestamp", commandInput.getTimestamp());
-        objectNode.put("result", objectMapper.valueToTree(users));
-
-        return objectNode;
-    }
-
-    /**
-     * Delete user object node.
+     * Add merch object node.
      *
      * @param commandInput the command input
      * @return the object node
      */
-    public static ObjectNode deleteUser(final CommandInput commandInput) {
-        String message = Admin.deleteUser(commandInput);
+    public static ObjectNode addMerch(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.addMerch(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
 
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("command", commandInput.getCommand());
@@ -800,6 +817,133 @@ public final class CommandRunner {
         objectNode.put("user", commandInput.getUsername());
         objectNode.put("timestamp", commandInput.getTimestamp());
         objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    public static ObjectNode removePodcast(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.removePodcast(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Add announcement object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode addAnnouncement(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.addAnnouncement(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Remove announcement object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode removeAnnouncement(final CommandInput commandInput) {
+        String message;
+
+        User user = Admin.getUser(commandInput.getUsername());
+        if (user != null) {
+            message = user.removeAnnouncement(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Switch connection status object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode switchConnectionStatus(final CommandInput commandInput) {
+        User user = Admin.getUser(commandInput.getUsername());
+        String message;
+
+        if (user != null) {
+            message = user.switchConnectionStatus(commandInput);
+        } else {
+            message = "The username " + commandInput.getUsername() + " doesn't exist.";
+        }
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
+
+    /**
+     * Gets all users.
+     *
+     * @param commandInput the command input
+     * @return the users
+     */
+    public static ObjectNode getAllUsers(final CommandInput commandInput) {
+        List<String> users = Admin.getAllUsers();
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("result", objectMapper.valueToTree(users));
+
+        return objectNode;
+    }
+
+    /**
+     * Gets online users.
+     *
+     * @param commandInput the command input
+     * @return the online users
+     */
+    public static ObjectNode getOnlineUsers(final CommandInput commandInput) {
+        List<String> onlineUsers = Admin.getOnlineUsers();
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("result", objectMapper.valueToTree(onlineUsers));
 
         return objectNode;
     }

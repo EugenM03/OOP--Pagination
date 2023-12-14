@@ -1,4 +1,4 @@
-package app.utils;
+package app.audio.Collections;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,4 +13,7 @@ public final class AlbumOutput {
     @Getter
     @Setter
     private List<String> songs;
+
+    public AlbumOutput() {
+    }
 }
