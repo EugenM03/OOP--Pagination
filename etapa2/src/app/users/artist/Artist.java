@@ -27,11 +27,8 @@ public class Artist extends User {
     @Getter
     private final ArrayList<Merchandise> merchandise = new ArrayList<>();
 
-    // Used for data validation
-
-
     /**
-     * Instantiates a new Artist.
+     * Instantiates a new Artist and its page.
      *
      * @param username the username
      * @param age      the age
@@ -40,9 +37,15 @@ public class Artist extends User {
      */
     public Artist(final String username, final int age, final String city, final String type) {
         super(username, age, city, type);
-        super.setPage(new ArtistPage(this, this.albums, this.merchandise, this.events));
+        super.setPage(new ArtistPage(this, albums, merchandise, events));
     }
 
+    /**
+     * Checks if a date is valid (dd-mm-yyyy).
+     *
+     * @param date the date to be checked
+     * @return true if the date is valid, false otherwise
+     */
     private static boolean isDateValid(final String date) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         sdf.setLenient(false); // Input must match the exact format
@@ -69,7 +72,7 @@ public class Artist extends User {
     }
 
     /**
-     * Switch connection status (implemented for NORMAL users).
+     * Switch connection status (for NORMAL users).
      *
      * @param commandInput the command input
      * @return the output message
@@ -80,7 +83,7 @@ public class Artist extends User {
     }
 
     /**
-     * Add an album (implemented for artist).
+     * Add an album (for artist).
      *
      * @param commandInput the command input
      * @return the string
@@ -121,14 +124,14 @@ public class Artist extends User {
             return commandInput.getUsername() + " has the same song at least twice in this album.";
         }
 
-        // Finally, we add the song to the corresponding list and return the output message
+        // Finally, add the song to the corresponding list and return the output message
         Admin.addSongs(newAlbum.getSongs());
         this.albums.add(newAlbum);
         return commandInput.getUsername() + " has added new album successfully.";
     }
 
     /**
-     * Remove an album (implemented for artist).
+     * Remove an album (for artist).
      *
      * @param commandInput the command input
      * @return the string
@@ -186,19 +189,19 @@ public class Artist extends User {
             }
 
             if (deleteAlbum) {
+                // Can delete album safely
                 this.albums.remove(foundAlbum);
                 return commandInput.getUsername() + " deleted the album successfully.";
             } else {
                 return commandInput.getUsername() + " can't delete this album.";
             }
         } else {
-            // We didn't find an album
             return commandInput.getUsername() + " doesn't have an album with the given name.";
         }
     }
 
     /**
-     * Add a merch (implemented for artist).
+     * Add a merch (for artist).
      *
      * @param commandInput the command input
      * @return the string
@@ -219,13 +222,13 @@ public class Artist extends User {
             return "Price for merchandise can not be negative.";
         }
 
-        // If the merch is valid, we add it to the list of merch and return the output message
+        // Can add merch safely
         this.merchandise.add(newMerch);
         return commandInput.getUsername() + " has added new merchandise successfully.";
     }
 
     /**
-     * Add an event (implemented for artist).
+     * Add an event (for artist).
      *
      * @param commandInput the command input
      * @return the string
@@ -245,13 +248,13 @@ public class Artist extends User {
             return "Event for " + commandInput.getUsername() + " does not have a valid date.";
         }
 
-        // If the event is valid, we add it to the list of events and return the output message
+        // Can add event safely
         this.events.add(newEvent);
         return commandInput.getUsername() + " has added new event successfully.";
     }
 
     /**
-     * Remove an event (implemented for artist).
+     * Remove an event (for artist).
      *
      * @param commandInput the command input
      * @return the string
@@ -261,7 +264,6 @@ public class Artist extends User {
         boolean foundEvent = events.removeIf(event ->
                 event.getName().equals(commandInput.getName()));
 
-        // Depending on the result, we return the corresponding output message
         if (foundEvent) {
             return commandInput.getUsername() + " deleted the event successfully.";
         } else {

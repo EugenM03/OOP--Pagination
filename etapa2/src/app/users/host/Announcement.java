@@ -9,6 +9,12 @@ public final class Announcement extends LibraryEntry {
     @Getter
     private final String description;
 
+    /**
+     * Instantiates a new Announcement.
+     *
+     * @param name        the name
+     * @param description the description
+     */
     public Announcement(final String name, final String description) {
         super(name);
         this.name = name;

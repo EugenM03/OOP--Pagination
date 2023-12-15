@@ -2,7 +2,7 @@ package app.users.artist;
 
 import lombok.Getter;
 
-public class Event {
+public final class Event {
     @Getter
     private final String name;
     @Getter

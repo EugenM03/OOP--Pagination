@@ -21,6 +21,12 @@ public final class HomePage extends Page {
         recommendedPlaylists = new ArrayList<>();
     }
 
+    /**
+     * Instantiates a new home page.
+     *
+     * @param recommendedSongs     the recommended songs
+     * @param recommendedPlaylists the recommended playlists
+     */
     public HomePage(final ArrayList<Song> recommendedSongs,
                     final ArrayList<Playlist> recommendedPlaylists) {
         this.recommendedSongs = recommendedSongs;
@@ -30,6 +36,7 @@ public final class HomePage extends Page {
     @Override
     public String printPage() {
         // Printing top 5 liked songs and top 5 followed playlists, as required
+        // We use a copy of the current lists to not modify the original ones
         ArrayList<String> topSongs = new ArrayList<>();
         ArrayList<Song> copiedRecommendedSongs = new ArrayList<>(recommendedSongs);
         int results = 0;
@@ -52,7 +59,6 @@ public final class HomePage extends Page {
         // We iterate through the top playlists and
         // add them to the topPlaylists list (5 maximum).
         ArrayList<String> topPlaylists = new ArrayList<>();
-
         ArrayList<Playlist> copiedRecommendedPlaylists = new ArrayList<>(recommendedPlaylists);
 
         // Sort alphabetically

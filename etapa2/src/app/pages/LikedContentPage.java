@@ -17,6 +17,12 @@ public final class LikedContentPage extends Page {
         likedPlaylists = new ArrayList<>();
     }
 
+    /**
+     * Instantiates a new liked content page.
+     *
+     * @param likedSongs     the liked songs
+     * @param likedPlaylists the liked playlists
+     */
     public LikedContentPage(final ArrayList<Song> likedSongs,
                             final ArrayList<Playlist> likedPlaylists) {
         this.likedSongs = likedSongs;

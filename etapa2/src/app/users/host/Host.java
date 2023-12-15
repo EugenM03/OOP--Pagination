@@ -19,13 +19,21 @@ public final class Host extends User {
     @Getter
     private final ArrayList<Announcement> announcements = new ArrayList<>();
 
+    /**
+     * Instantiates a new Host.
+     *
+     * @param username the username
+     * @param age      the age
+     * @param city     the city
+     * @param userType the user type
+     */
     public Host(final String username, final int age, final String city, final String userType) {
         super(username, age, city, userType);
-        super.setPage(new HostPage(this, this.podcasts, this.announcements));
+        super.setPage(new HostPage(this, podcasts, announcements));
     }
 
     /**
-     * Switch connection status (implemented for NORMAL users).
+     * Switch connection status (for NORMAL users).
      *
      * @param commandInput the command input
      * @return the output message
@@ -36,7 +44,7 @@ public final class Host extends User {
     }
 
     /**
-     * Add a podcast (implemented for host).
+     * Add a podcast (for host).
      *
      * @param commandInput the command input
      * @return the output message
@@ -72,20 +80,14 @@ public final class Host extends User {
                     + " has the same episode at least twice in this podcast.";
         }
 
-        // If the podcast is valid, add it to the list of podcasts
-        // and afterwards add the podcast to the host's list of podcasts
-        Set<String> podcastNames = this.podcasts.stream()
-                .map(Podcast::getName)
-                .collect(Collectors.toSet());
-
-        // Finally, we add the podcast to the corresponding list and return the output message
+        // Finally, add the podcast to the corresponding list and return the output message
         Admin.addPodcast(newPodcast);
         this.podcasts.add(newPodcast);
         return commandInput.getUsername() + " has added new podcast successfully.";
     }
 
     /**
-     * Remove podcast (implemented for host).
+     * Remove podcast (for host).
      *
      * @param commandInput the command input
      * @return the output message
@@ -116,21 +118,18 @@ public final class Host extends User {
             }
 
             if (deletePodcast) {
-                // If we can delete the podcast, we remove it from the list of podcasts
                 this.podcasts.remove(foundPodcast);
                 return commandInput.getUsername() + " deleted the podcast successfully.";
             } else {
-                // We can't delete the podcast
                 return commandInput.getUsername() + " can't delete this podcast.";
             }
         } else {
-            // We didn't find a podcast
             return commandInput.getUsername() + " doesn't have a podcast with the given name.";
         }
     }
 
     /**
-     * Add announcement (implemented for host).
+     * Add announcement (for host).
      *
      * @param commandInput the command input
      * @return the output message
@@ -147,13 +146,13 @@ public final class Host extends User {
             return commandInput.getUsername() + " has another announcement with the same name.";
         }
 
-        // If the announcement is valid, add it to the list of announcements
+        // Can add announcement safely
         this.announcements.add(newAnnouncement);
         return commandInput.getUsername() + " has successfully added new announcement.";
     }
 
     /**
-     * Removes announcement (implemented for host).
+     * Removes announcement (for host).
      *
      * @param commandInput the command input
      * @return the output message

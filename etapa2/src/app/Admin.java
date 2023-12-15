@@ -27,9 +27,8 @@ import java.util.stream.Collectors;
 public final class Admin {
     private static final int LIMIT = 5;
     // Singleton pattern - we only need one instance of Admin
-//    @Getter
     @Getter
-    private static final Admin instance = new Admin();
+    private static final Admin admin = new Admin();
 
     @Getter
     private static List<User> users = new ArrayList<>();
@@ -248,7 +247,7 @@ public final class Admin {
      * @return the new user
      */
     public static String addUser(final CommandInput commandInput) {
-        // Inspired from 'factory' design pattern, we create a new user based on the type
+        // Inspired from Factory design pattern, we create a new user based on the type
         // specified in the command input (artist, host, normal user)
         User newUser = UsersFactory.createUser(commandInput);
 
@@ -257,7 +256,7 @@ public final class Admin {
             return "The username " + newUser.getUsername() + " is already taken.";
         }
 
-        // Adding user to the list
+        // Can add user safely
         users.add(newUser);
         return "The username " + newUser.getUsername() + " has been added successfully.";
     }
@@ -270,8 +269,9 @@ public final class Admin {
      */
     public static String deleteUser(final CommandInput commandInput) {
         User currUser = Admin.getUser(commandInput.getUsername());
+
+        // Check if user exists
         if (currUser == null) {
-            // If the user doesn't exist
             return "User " + commandInput.getUsername() + " does not exist.";
         }
 
@@ -279,7 +279,7 @@ public final class Admin {
         switch (currUser.getUserType()) {
             case "user" -> {
                 // Normal user case
-                // We check if the user can be removed from the list safely
+                // Check if the user can be removed from the list safely
                 if (canDeleteNormalUser(currUser)) {
                     // We update the number of likes and followers for the playlists and songs
                     for (Playlist currPlaylist : currUser.getFollowedPlaylists()) {
@@ -297,18 +297,17 @@ public final class Admin {
                                     otherUser.getFollowedPlaylists().removeIf(playlist ->
                                             currUser.getPlaylists().contains(playlist)));
 
-                    // We remove the user from the list
+                    // Can remove user safely
                     users.remove(currUser);
                     return currUser.getUsername() + " was successfully deleted.";
                 } else {
-                    // The user cannot be deleted
                     return currUser.getUsername() + " can't be deleted.";
                 }
             }
 
             case "artist" -> {
                 // Artist case
-                // We check if the artist can be removed from the list safely
+                // Check if the artist can be removed from the list safely
                 Artist currArtist = (Artist) currUser;
                 if (canDeleteArtist(currArtist)) {
                     // Delete all the artist's albums; for each album we delete all the songs
@@ -319,7 +318,7 @@ public final class Admin {
                         }
 
                         // Delete all the songs from the list, as well as
-                        // from other users' liked songs and from their playlists
+                        // from the other users' liked songs and from their playlists
                         for (User otherUser : users) {
                             otherUser.getLikedSongs().removeIf(song
                                     -> songsNames.contains(song.getName()));
@@ -334,7 +333,8 @@ public final class Admin {
                             songs.remove(currSong);
                         }
                     }
-                    // Delete the artist from the list
+
+                    // Can delete artist safely
                     users.remove(currArtist);
                     return currArtist.getUsername() + " was successfully deleted.";
                 } else {
@@ -344,20 +344,19 @@ public final class Admin {
 
             case "host" -> {
                 // Host case
-                // We check if the host can be removed from the list safely
+                // Check if the host can be removed from the list safely
                 Host currHost = (Host) currUser;
                 if (canDeleteHost(currHost)) {
+                    // Delete all the host's podcasts; for each podcast we delete all the episodes
                     List<String> podcastsNames = new ArrayList<>();
                     for (Podcast podcast : currHost.getPodcasts()) {
                         podcastsNames.add(podcast.getName());
                     }
 
-                    // Then, delete all the podcasts from the list
                     podcasts.removeIf(podcast -> podcastsNames.contains(podcast.getName()));
 
-                    // Delete the host from the list
+                    // Can delete host safely
                     users.remove(currHost);
-
                     return currHost.getUsername() + " was successfully deleted.";
                 } else {
                     return currHost.getUsername() + " can't be deleted.";
@@ -378,7 +377,7 @@ public final class Admin {
      */
     private static boolean canDeleteNormalUser(final User currUser) {
         // We need to check if all the playlists created by the user can be deleted safely;
-        // for instance, another user may be playing a song from one of the users' playlist
+        // for instance, another user may be playing a song from one of the user's playlist
         for (Playlist currPlaylist : currUser.getPlaylists()) {
             for (User user : users) {
                 Player currPlayer = user.getPlayer();
@@ -404,7 +403,7 @@ public final class Admin {
      */
     private static boolean canDeleteArtist(final Artist currArtist) {
         // We need to check if all the albums created by the artist can be deleted safely;
-        // for instance, another user may be playing a song from one of the users' albums
+        // for instance, another user may be playing a song from one of the artist's albums
         for (Album currAlbum : currArtist.getAlbums()) {
             for (User user : users) {
                 // Check if the album is currently being played by another user
@@ -443,7 +442,7 @@ public final class Admin {
             }
         }
 
-        // Lastly, we need to check if the current page of the artist
+        // Lastly, check if the current page of the artist
         // is being accessed by another user
         for (User currUser : users) {
             User currOwner = currUser.getPage().getPageOwner();
@@ -465,7 +464,7 @@ public final class Admin {
      */
     private static boolean canDeleteHost(final Host currHost) {
         // We need to check if all the podcasts created by the host can be deleted safely;
-        // for instance, another user may be playing a podcast from one of the users' podcasts
+        // for instance, another user may be playing a podcast from one of the host's podcasts
         for (Podcast currPodcast : currHost.getPodcasts()) {
             for (User currUser : users) {
                 PlayerSource currSource = currUser.getPlayer().getSource();
@@ -519,12 +518,10 @@ public final class Admin {
                 .thenComparing(Album::getName));
 
         // Keep only the top 5 albums
-        List<String> topAlbums = mostLikedAlbums.stream()
+        return mostLikedAlbums.stream()
                 .limit(LIMIT)
                 .map(Album::getName)
                 .collect(Collectors.toList());
-
-        return topAlbums;
     }
 
     /**
@@ -539,12 +536,10 @@ public final class Admin {
         Collections.sort(mostLikedArtists, Comparator.comparingInt(Artist::getLikes).reversed());
 
         // Keep only the top 5 artists
-        List<String> topArtists = mostLikedArtists.stream()
+        return mostLikedArtists.stream()
                 .limit(LIMIT)
                 .map(Artist::getUsername)
                 .collect(Collectors.toList());
-
-        return topArtists;
     }
 
     /**

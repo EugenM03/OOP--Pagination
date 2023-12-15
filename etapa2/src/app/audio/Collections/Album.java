@@ -62,7 +62,7 @@ public final class Album extends AudioCollection {
      */
     @Override
     public boolean matchesDescription(final String name) {
-        return this.getDescription().toLowerCase().startsWith(name);
+        return this.getDescription().startsWith(name);
     }
 
     /**

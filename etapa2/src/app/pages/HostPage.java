@@ -20,6 +20,13 @@ public final class HostPage extends Page {
         announcements = new ArrayList<>();
     }
 
+    /**
+     * Instantiates a new host page.
+     *
+     * @param pageOwner     the host that owns the page
+     * @param podcasts      the podcasts
+     * @param announcements the announcements
+     */
     public HostPage(final Host pageOwner, final ArrayList<Podcast> podcasts,
                     final ArrayList<Announcement> announcements) {
         this.pageOwner = pageOwner;

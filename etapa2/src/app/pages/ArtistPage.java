@@ -24,6 +24,14 @@ public final class ArtistPage extends Page {
         events = new ArrayList<>();
     }
 
+    /**
+     * Instantiates a new artist page.
+     *
+     * @param pageOwner   the artist that owns the page
+     * @param albums      the albums
+     * @param merchandise the merchandise
+     * @param events      the events
+     */
     public ArtistPage(final Artist pageOwner, final ArrayList<Album> albums,
                       final ArrayList<Merchandise> merchandise, final ArrayList<Event> events) {
         this.pageOwner = pageOwner;

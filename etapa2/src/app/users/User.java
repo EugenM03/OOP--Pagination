@@ -542,7 +542,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Switch connection status string (implemented for NORMAL users).
+     * Switch connection status string (for NORMAL users).
      *
      * @param commandInput the command input
      * @return the string
@@ -559,7 +559,8 @@ public class User extends LibraryEntry {
      * @return the string
      */
     public String changePage(final String nextPage) {
-        // We have 3 cases: nextPage is either "Home", "LikedContent", or a non-existent page
+        // We have 3 cases: nextPage is either
+        // a HomePage, a LikedContentPage, or a non-existent page
         switch (nextPage) {
             case "Home" -> {
                 page = new HomePage(likedSongs, followedPlaylists);
@@ -576,7 +577,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Add album string (depending on the user type).
+     * Add album string (for artists).
      *
      * @param commandInput the command input
      * @return the string
@@ -586,7 +587,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Remove album string (depending on the user type).
+     * Remove album string (for artists).
      *
      * @param commandInput the command input
      * @return the string
@@ -596,7 +597,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Add merch string (depending on the user type).
+     * Add merch string (for artists).
      *
      * @param commandInput the command input
      * @return the string
@@ -606,7 +607,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Add event string (depending on the user type).
+     * Add event string (for artists).
      *
      * @param commandInput the command input
      * @return the string
@@ -616,7 +617,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Remove event string (depending on the user type).
+     * Remove event string (for artists).
      *
      * @param commandInput the command input
      * @return the string
@@ -626,7 +627,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Add podcast string (depending on the user type).
+     * Add podcast string (for hosts).
      *
      * @param commandInput the command input
      * @return the string
@@ -636,7 +637,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Remove podcast string (depending on the user type).
+     * Remove podcast string (for hosts).
      *
      * @param commandInput the command input
      * @return the string
@@ -646,7 +647,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Add announcement string (depending on the user type).
+     * Add announcement string (for hosts).
      *
      * @param commandInput the command input
      * @return the string
@@ -656,7 +657,7 @@ public class User extends LibraryEntry {
     }
 
     /**
-     * Remove announcement string (depending on the user type).
+     * Remove announcement string (for hosts).
      *
      * @param commandInput the command input
      * @return the string
@@ -664,5 +665,4 @@ public class User extends LibraryEntry {
     public String removeAnnouncement(final CommandInput commandInput) {
         return commandInput.getUsername() + " is not a host.";
     }
-
 }
