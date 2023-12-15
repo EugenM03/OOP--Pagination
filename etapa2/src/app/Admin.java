@@ -18,7 +18,11 @@ import fileio.input.SongInput;
 import fileio.input.UserInput;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,15 +31,12 @@ import java.util.stream.Collectors;
 public final class Admin {
     private static final int LIMIT = 5;
     // Singleton pattern - we only need one instance of Admin
-    @Getter
-    private static final Admin admin = new Admin();
-
+    private static Admin admin = new Admin();
     @Getter
     private static List<User> users = new ArrayList<>();
     private static List<Song> songs = new ArrayList<>();
     private static List<Podcast> podcasts = new ArrayList<>();
     private static int timestamp = 0;
-
     private Admin() {
     }
 
