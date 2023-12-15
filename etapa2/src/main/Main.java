@@ -121,7 +121,7 @@ public final class Main {
 
                 // Admin commands
                 case "addUser" -> outputs.add(CommandRunner.addUser(command));
-//                case "deleteUser" -> outputs.add(CommandRunner.deleteUser(command));
+                case "deleteUser" -> outputs.add(CommandRunner.deleteUser(command));
                 case "showAlbums" -> outputs.add(CommandRunner.showAlbums(command));
                 case "showPodcasts" -> outputs.add(CommandRunner.showPodcasts(command));
 

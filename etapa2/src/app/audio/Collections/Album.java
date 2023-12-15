@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Album extends AudioCollection {
+public final class Album extends AudioCollection {
     // We add the corresponding fields for properly outputting in the .json file.
     @Getter
     private final List<Song> songs;

@@ -12,10 +12,6 @@ public abstract class Page {
     public Page() {
     }
 
-    public Page(final User pageOwner) {
-        this.pageOwner = pageOwner;
-    }
-
     /**
      * Prints the page's content
      *

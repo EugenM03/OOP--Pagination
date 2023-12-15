@@ -625,6 +625,23 @@ public final class CommandRunner {
         return objectNode;
     }
 
+    /**
+     * Delete user object node.
+     *
+     * @param commandInput the command input
+     * @return the object node
+     */
+    public static ObjectNode deleteUser(final CommandInput commandInput) {
+        String message = Admin.deleteUser(commandInput);
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command", commandInput.getCommand());
+        objectNode.put("user", commandInput.getUsername());
+        objectNode.put("timestamp", commandInput.getTimestamp());
+        objectNode.put("message", message);
+
+        return objectNode;
+    }
 
 
     /**

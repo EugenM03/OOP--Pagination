@@ -5,7 +5,6 @@ import app.users.host.Host;
 import fileio.input.CommandInput;
 
 public final class UsersFactory {
-    //
     private UsersFactory() {
     }
 

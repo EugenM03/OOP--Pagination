@@ -1,14 +1,12 @@
 package app;
 
 import app.audio.Collections.Album;
-import app.audio.Collections.AudioCollection;
 import app.audio.Collections.Playlist;
 import app.audio.Collections.Podcast;
-import app.audio.Files.AudioFile;
 import app.audio.Files.Episode;
 import app.audio.Files.Song;
 import app.player.Player;
-import app.player.PodcastBookmark;
+import app.player.PlayerSource;
 import app.users.artist.Artist;
 import app.users.host.Host;
 import app.users.User;
@@ -18,19 +16,22 @@ import fileio.input.EpisodeInput;
 import fileio.input.PodcastInput;
 import fileio.input.SongInput;
 import fileio.input.UserInput;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Set;
 
 /**
  * The type Admin.
  */
 public final class Admin {
     private static final int LIMIT = 5;
+    // Singleton pattern - we only need one instance of Admin
+//    @Getter
+    @Getter
+    private static final Admin instance = new Admin();
+
+    @Getter
     private static List<User> users = new ArrayList<>();
     private static List<Song> songs = new ArrayList<>();
     private static List<Podcast> podcasts = new ArrayList<>();
@@ -110,9 +111,9 @@ public final class Admin {
     public static List<Album> getAlbums() {
         List<Album> albums = new ArrayList<>();
 
-        for (User user : Admin.users) {
-            if ("artist".equals(user.getUserType())) {
-                albums.addAll(((Artist) user).getAlbums());
+        for (User currUser : Admin.users) {
+            if ("artist".equals(currUser.getUserType())) {
+                albums.addAll(((Artist) currUser).getAlbums());
             }
         }
 
@@ -127,9 +128,9 @@ public final class Admin {
     public static List<Artist> getArtists() {
         List<Artist> artists = new ArrayList<>();
 
-        for (User user : Admin.users) {
-            if ("artist".equals(user.getUserType())) {
-                artists.add((Artist) user);
+        for (User currUser : Admin.users) {
+            if ("artist".equals(currUser.getUserType())) {
+                artists.add((Artist) currUser);
             }
         }
 
@@ -149,10 +150,6 @@ public final class Admin {
             }
         }
         return null;
-    }
-
-    public static List<User> getUsers() {
-        return users;                                                                  // ??????
     }
 
     /**
@@ -263,6 +260,236 @@ public final class Admin {
         // Adding user to the list
         users.add(newUser);
         return "The username " + newUser.getUsername() + " has been added successfully.";
+    }
+
+    /**
+     * Deletes a user.
+     *
+     * @param commandInput the command input
+     * @return the string
+     */
+    public static String deleteUser(final CommandInput commandInput) {
+        User currUser = Admin.getUser(commandInput.getUsername());
+        if (currUser == null) {
+            // If the user doesn't exist
+            return "User " + commandInput.getUsername() + " does not exist.";
+        }
+
+        // Depending on the user type, we have many conditions and cases to take care for
+        switch (currUser.getUserType()) {
+            case "user" -> {
+                // Normal user case
+                // We check if the user can be removed from the list safely
+                if (canDeleteNormalUser(currUser)) {
+                    // We update the number of likes and followers for the playlists and songs
+                    for (Playlist currPlaylist : currUser.getFollowedPlaylists()) {
+                        currPlaylist.decreaseFollowers();
+                    }
+                    for (Song currSong : currUser.getLikedSongs()) {
+                        currSong.dislike();
+                    }
+
+                    // If playlists from the user are also followed by other users, we decrease
+                    // the number of followers for those playlists as well
+                    users.stream()
+                            .filter(otherUser -> otherUser != currUser)
+                            .forEach(otherUser ->
+                                    otherUser.getFollowedPlaylists().removeIf(playlist ->
+                                            currUser.getPlaylists().contains(playlist)));
+
+                    // We remove the user from the list
+                    users.remove(currUser);
+                    return currUser.getUsername() + " was successfully deleted.";
+                } else {
+                    // The user cannot be deleted
+                    return currUser.getUsername() + " can't be deleted.";
+                }
+            }
+
+            case "artist" -> {
+                // Artist case
+                // We check if the artist can be removed from the list safely
+                Artist currArtist = (Artist) currUser;
+                if (canDeleteArtist(currArtist)) {
+                    // Delete all the artist's albums; for each album we delete all the songs
+                    for (Album album : currArtist.getAlbums()) {
+                        List<String> songsNames = new ArrayList<>();
+                        for (Song song : album.getSongs()) {
+                            songsNames.add(song.getName());
+                        }
+
+                        // Delete all the songs from the list, as well as
+                        // from other users' liked songs and from their playlists
+                        for (User otherUser : users) {
+                            otherUser.getLikedSongs().removeIf(song
+                                    -> songsNames.contains(song.getName()));
+                            for (Playlist playlist : otherUser.getPlaylists()) {
+                                playlist.getSongs().removeIf(song
+                                        -> songsNames.contains(song.getName()));
+                            }
+                        }
+
+                        // Delete all the songs from the list
+                        for (Song currSong : album.getSongs()) {
+                            songs.remove(currSong);
+                        }
+                    }
+                    // Delete the artist from the list
+                    users.remove(currArtist);
+                    return currArtist.getUsername() + " was successfully deleted.";
+                } else {
+                    return currArtist.getUsername() + " can't be deleted.";
+                }
+            }
+
+            case "host" -> {
+                // Host case
+                // We check if the host can be removed from the list safely
+                Host currHost = (Host) currUser;
+                if (canDeleteHost(currHost)) {
+                    List<String> podcastsNames = new ArrayList<>();
+                    for (Podcast podcast : currHost.getPodcasts()) {
+                        podcastsNames.add(podcast.getName());
+                    }
+
+                    // Then, delete all the podcasts from the list
+                    podcasts.removeIf(podcast -> podcastsNames.contains(podcast.getName()));
+
+                    // Delete the host from the list
+                    users.remove(currHost);
+
+                    return currHost.getUsername() + " was successfully deleted.";
+                } else {
+                    return currHost.getUsername() + " can't be deleted.";
+                }
+            }
+            default -> {
+                // Invalid user type
+                return currUser.getUsername() + " can't be deleted.";
+            }
+        }
+    }
+
+    /**
+     * Verifies if a user (normal user) can be deleted.
+     *
+     * @param currUser the user to be deleted
+     * @return true if the user can be deleted, false otherwise
+     */
+    private static boolean canDeleteNormalUser(final User currUser) {
+        // We need to check if all the playlists created by the user can be deleted safely;
+        // for instance, another user may be playing a song from one of the users' playlist
+        for (Playlist currPlaylist : currUser.getPlaylists()) {
+            for (User user : users) {
+                Player currPlayer = user.getPlayer();
+                if (currPlayer != null
+                        && currPlayer.getSource() != null
+                        && currPlayer.getSource().getAudioCollection() != null
+                        && currPlayer.getSource().getAudioCollection()
+                        .getName().matches(currPlaylist.getName())) {
+                    // The user's playlist is currently being played by another user
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Verifies if a user (artist) can be deleted.
+     *
+     * @param currArtist the artist to be deleted
+     * @return true if the artist can be deleted, false otherwise
+     */
+    private static boolean canDeleteArtist(final Artist currArtist) {
+        // We need to check if all the albums created by the artist can be deleted safely;
+        // for instance, another user may be playing a song from one of the users' albums
+        for (Album currAlbum : currArtist.getAlbums()) {
+            for (User user : users) {
+                // Check if the album is currently being played by another user
+                Player currPlayer = user.getPlayer();
+                if (currPlayer != null
+                        && currPlayer.getSource() != null
+                        && currPlayer.getSource().getAudioCollection() != null
+                        && currPlayer.getSource().getAudioCollection()
+                        .getName().matches(currAlbum.getName())) {
+                    return false;
+                }
+
+                // Check if the source is a playlist currently playing a song from the album
+                if (currPlayer != null
+                        && currPlayer.getSource() != null
+                        && currPlayer.getSource().getAudioCollection() != null) {
+                    int numTracks = currPlayer.getSource().getAudioCollection().getNumberOfTracks();
+                    for (int i = 0; i < numTracks; i++) {
+                        if (currPlayer.getSource().getAudioCollection().getTrackByIndex(i)
+                                .getName().matches(currAlbum.getName())) {
+                            return false;
+                        }
+                    }
+                }
+
+                // Lastly, check if a song from the album is currently playing
+                for (Song currSong : currAlbum.getSongs()) {
+                    if (currPlayer != null
+                            && currPlayer.getSource() != null
+                            && currPlayer.getSource().getAudioFile() != null
+                            && currPlayer.getSource().getAudioFile()
+                            .getName().matches(currSong.getName())) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Lastly, we need to check if the current page of the artist
+        // is being accessed by another user
+        for (User currUser : users) {
+            User currOwner = currUser.getPage().getPageOwner();
+            if (!currArtist.getUsername().matches(currUser.getUsername())
+                    && currOwner != null
+                    && currOwner.getUsername().matches(currArtist.getUsername())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Verifies if a user (host) can be deleted.
+     *
+     * @param currHost the host to be deleted
+     * @return true if the host can be deleted, false otherwise
+     */
+    private static boolean canDeleteHost(final Host currHost) {
+        // We need to check if all the podcasts created by the host can be deleted safely;
+        // for instance, another user may be playing a podcast from one of the users' podcasts
+        for (Podcast currPodcast : currHost.getPodcasts()) {
+            for (User currUser : users) {
+                PlayerSource currSource = currUser.getPlayer().getSource();
+                if (currSource != null
+                        && currSource.getAudioCollection() != null
+                        && currSource.getAudioCollection().getName()
+                        .matches(currPodcast.getName())) {
+                    // The user is currently playing a podcast from the host
+                    return false;
+                }
+            }
+        }
+
+        // Lastly, check if the current page of the host is being accessed by another user
+        for (User currUser : users) {
+            User currOwner = currUser.getPage().getPageOwner();
+            if (!currHost.getUsername().matches(currUser.getUsername())
+                    && currOwner != null
+                    && currOwner.getUsername().matches(currHost.getUsername())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
