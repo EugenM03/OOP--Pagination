@@ -6,6 +6,8 @@
 ***Note: The official solution for the first stage of the project was used
 as a base for the second stage.***
 
+**The solution is on the `solution` branch! (main only has template)**
+
 _Generative AI was used as a tool for learning to work with streams,
 refactoring code for better readability and efficiency, as well as getting
 along with SimpleDateFormat and StringBuilder documentation.
